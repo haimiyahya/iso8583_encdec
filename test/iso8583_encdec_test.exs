@@ -14,7 +14,7 @@ defmodule Iso8583EncdecTest do
     parsed_msg = Iso8583Parser.parse_msg(msg)
 
     assert Map.has_key?(parsed_msg, 63)
-    assert Map.get(parsed_msg, 63) == "123456"
+    assert Map.get(parsed_msg, 63) == "12"
 
     assert Map.has_key?(parsed_msg, 64)
     assert Map.get(parsed_msg, 64) == "5678"
@@ -28,7 +28,7 @@ defmodule BitmapBinaryHeaderBcd do
     numeric_encoding: :bcd,
     bitmap_format: :bin
 
-  define(63, "n.. 6")
+  define(63, "n.. 2")
   define(64, "an 4")
 
 end

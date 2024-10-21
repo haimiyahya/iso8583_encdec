@@ -266,19 +266,19 @@ defmodule Iso8583Dec do
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     numeric_encoding = Module.get_attribute(__CALLER__.module, :numeric_encoding)
 
-    translated_length = translate_length(header_encoding, data_type, max_data_length)
-    header_format = {header_length, translated_length}
+    data_bytes_length = translate_length(header_encoding, data_type, max_data_length)
+    header_format = {header_length, data_bytes_length, max_data_length}
 
     case header_format do
-      {0, max_data_len}
+      {0, data_bytes_length, _max_data_length}
         ->
          quote do
-           def parse(unquote(pos), <<field_value::binary-size(unquote(max_data_len))>> <> data_remaining = data) do
+           def parse(unquote(pos), <<field_value::binary-size(unquote(data_bytes_length))>> <> data_remaining = data) do
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end
-     {2, _max_data_len}
+     {2, _data_bytes_length, max_data_length}
         ->
          quote do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
@@ -290,7 +290,7 @@ defmodule Iso8583Dec do
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
-     {3, _max_data_len}
+     {3, _data_bytes_length, max_data_length}
         ->
          quote do
            def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
