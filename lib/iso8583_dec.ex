@@ -10,8 +10,8 @@ defmodule Iso8583Dec do
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
 
     quote do
-      require Iso8583Dec
-      import Iso8583Dec
+      require unquote(__MODULE__)
+      import unquote(__MODULE__)
 
       def_all_match_bit()
       def_parse_bitmap()
@@ -60,19 +60,23 @@ defmodule Iso8583Dec do
 
 
 
-  def translate_data(:bcd, :n, data) do
+  def translate_data(:bcd, :bcd, :n, data) do
     Base.encode16(data)
   end
 
-  def translate_data(:bcd, :z, data) do
-    Base.encode16(data)
-  end
-
-  def translate_data(:bcd, _data_type, data) do
+  def translate_data(:bcd, :ascii, :n, data) do
     data
   end
 
-  def translate_data(:ascii, _data_type, data) do
+  def translate_data(:bcd, _numeric_encoding, :z, data) do
+    Base.encode16(data)
+  end
+
+  def translate_data(:bcd, _numeric_encoding, _data_type, data) do
+    data
+  end
+
+  def translate_data(:ascii, _numeric_encoding, _data_type, data) do
     data
   end
 
@@ -258,6 +262,7 @@ defmodule Iso8583Dec do
     {header_length, data_type, max_data_length} = match_conf(conf)
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
+    numeric_encoding = Module.get_attribute(__CALLER__.module, :numeric_encoding)
 
     translated_length = translate_length(header_encoding, data_type, max_data_length)
     header_format = {header_length, translated_length}
@@ -267,7 +272,7 @@ defmodule Iso8583Dec do
         ->
          quote do
            def parse(unquote(pos), <<field_value::binary-size(unquote(max_data_len))>> <> data_remaining = data) do
-             translated_data = translate_data(unquote(header_encoding), unquote(data_type), field_value)
+             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end
@@ -277,7 +282,7 @@ defmodule Iso8583Dec do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
              body_len = div(w*10+x, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(header_encoding), unquote(data_type), body_val)
+             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
@@ -287,14 +292,14 @@ defmodule Iso8583Dec do
            def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
              body_len = div(x*100+y*10+z, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(header_encoding), unquote(data_type), body_val)
+             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
       _ ->
         quote do
            def parse(unquote(pos), <<field_value::binary-size>> <> data_remaining = data) do
-             translated_data = translate_data(unquote(header_encoding), unquote(data_type), field_value)
+             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end
