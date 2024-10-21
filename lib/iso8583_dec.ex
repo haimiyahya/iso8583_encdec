@@ -80,6 +80,15 @@ defmodule Iso8583Dec do
     data
   end
 
+  def truncate_data(data, max_length) when byte_size(data) >  max_length do
+    <<result::binary-size(max_length), _trailer::binary>> = data
+    result
+  end
+
+  def truncate_data(data, _max_length) do
+    data
+  end
+
   # ans, anp, an, as, ns, x+n, a, n, s, b, p, z
   # space within the conf is replaced with empty string to simplify the logic
 
@@ -130,11 +139,7 @@ defmodule Iso8583Dec do
     quote location: :keep do
 
       def parse_bmp_from_msg(msg) do
-        #IO.inspect TestModule.parse_bmp(Base.encode16("FF34567890123456789012345678901234567890"))
-
-        IO.inspect unquote(bitmap_format)
         <<first_char::8, _trailer::binary>> = msg
-        IO.inspect first_char
         parse_bitmap_by_format(unquote(bitmap_format), msg)
       end
 
@@ -255,9 +260,6 @@ defmodule Iso8583Dec do
 
   defmacro define(pos, conf) do
 
-    # the conf supplied must follow like this example:
-    # n..19
-    #
     conf = String.replace(conf, " ", "")
     {header_length, data_type, max_data_length} = match_conf(conf)
 
@@ -283,6 +285,8 @@ defmodule Iso8583Dec do
              body_len = div(w*10+x, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             # truncate too long data
+             translated_data = truncate_data(translated_data, unquote(max_data_length))
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
@@ -293,6 +297,7 @@ defmodule Iso8583Dec do
              body_len = div(x*100+y*10+z, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             translated_data = truncate_data(translated_data, unquote(max_data_length))
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
@@ -300,6 +305,7 @@ defmodule Iso8583Dec do
         quote do
            def parse(unquote(pos), <<field_value::binary-size>> <> data_remaining = data) do
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
+             translated_data = truncate_data(translated_data, unquote(max_data_length))
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end
