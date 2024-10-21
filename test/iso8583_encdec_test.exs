@@ -5,20 +5,27 @@ defmodule Iso8583EncdecTest do
 
   test "parse f63 and f64" do
     bmp = "0000000000000003"
-    msg = "0612345631323334"
-    IO.inspect String.length(bmp)
+    f63 = "06123456"
+    f64 = "35363738"
 
-    msg = bmp <> msg
+    msg = bmp <> f63 <> f64
 
     msg = Base.decode16!(msg)
-    IO.inspect msg
-    IO.inspect Iso8583Parser.parse_msg(msg)
+    parsed_msg = Iso8583Parser.parse_msg(msg)
+
+    assert Map.has_key?(parsed_msg, 63)
+    assert Map.get(parsed_msg, 63) == "123456"
+
+    assert Map.has_key?(parsed_msg, 64)
+    assert Map.get(parsed_msg, 64) == "5678"
+
   end
 end
 
 
 defmodule BitmapBinaryHeaderBcd do
   use Iso8583Dec, header_encoding: :bcd,
+    numeric_encoding: :bcd,
     bitmap_format: :bin
 
   define(63, "n.. 6")
