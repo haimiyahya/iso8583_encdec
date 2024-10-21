@@ -1,9 +1,11 @@
 defmodule Iso8583Dec do
 
   defmacro __using__(opts) do
-    val = if opts[:encoding], do: opts[:encoding], else: :bcd
+    enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
+    bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
 
-    Module.put_attribute(__CALLER__.module, :encoding, val)
+    Module.put_attribute(__CALLER__.module, :header_encoding, enc)
+    Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
 
     quote do
       require Iso8583Dec
@@ -11,6 +13,7 @@ defmodule Iso8583Dec do
 
       def_all_match_bit()
       def_parse_bitmap()
+      def_parse_msg()
     end
 
   end
@@ -55,11 +58,19 @@ defmodule Iso8583Dec do
 
 
 
-  def translate_data(:bcd, data) do
+  def translate_data(:bcd, :n, data) do
     Base.encode16(data)
   end
 
-  def translate_data(:ascii, data) do
+  def translate_data(:bcd, :z, data) do
+    Base.encode16(data)
+  end
+
+  def translate_data(:bcd, _data_type, data) do
+    data
+  end
+
+  def translate_data(:ascii, _data_type, data) do
     data
   end
 
@@ -107,9 +118,43 @@ defmodule Iso8583Dec do
 
 
   defmacro def_parse_bitmap() do
+
+    bitmap_format = Module.get_attribute(__CALLER__.module, :bitmap_format)
+
     quote location: :keep do
 
-      def parse_bitmap(
+      def parse_bmp_from_msg(msg) do
+        #IO.inspect TestModule.parse_bmp(Base.encode16("FF34567890123456789012345678901234567890"))
+
+        IO.inspect unquote(bitmap_format)
+        <<first_char::8, _trailer::binary>> = msg
+        IO.inspect first_char
+        parse_bitmap_by_format(unquote(bitmap_format), msg)
+      end
+
+      defp parse_bitmap_by_format(:bin, msg) do
+        parse_bitmap(msg)
+      end
+
+      defp parse_bitmap_by_format(:hex, <<first_char::8, _trailer::binary>> = data) when first_char >= ?0 and first_char <= ?7 do
+        <<bitmap::binary-size(16), trailer::binary>> = data
+        parse_bitmap(Base.decode16(bitmap) <> trailer)
+      end
+
+      defp parse_bitmap_by_format(:hex, <<first_char::8, _trailer::binary>> = data) when first_char >= ?8 and first_char <= ?F do
+        <<bitmap::binary-size(32), trailer::binary>> = data
+
+        #IO.inspect bitmap
+        #IO.inspect Base.decode16!(bitmap)
+        msg = Base.decode16!(bitmap) <> trailer
+        parse_bitmap(msg)
+      end
+
+      defp parse_bitmap_by_format(:hex, data) do
+        raise "invalid msg format"
+      end
+
+      defp parse_bitmap(
           <<0::1,  b2::1,  b3::1,  b4::1,  b5::1,  b6::1,  b7::1,  b8::1,  b9::1, b10::1,
           b11::1, b12::1, b13::1, b14::1, b15::1, b16::1, b17::1, b18::1, b19::1, b20::1,
           b21::1, b22::1, b23::1, b24::1, b25::1, b26::1, b27::1, b28::1, b29::1, b30::1,
@@ -130,7 +175,7 @@ defmodule Iso8583Dec do
 
       end
 
-      def parse_bitmap(
+      defp parse_bitmap(
           <<1::1,  b2::1,  b3::1,  b4::1,  b5::1,  b6::1,  b7::1,  b8::1,  b9::1, b10::1,
           b11::1, b12::1, b13::1, b14::1, b15::1, b16::1, b17::1, b18::1, b19::1, b20::1,
           b21::1, b22::1, b23::1, b24::1, b25::1, b26::1, b27::1, b28::1, b29::1, b30::1,
@@ -168,31 +213,37 @@ defmodule Iso8583Dec do
   end
 
 
-  defmacro def_matched_bit(pos) do
-    quote do
-      def match_bit(1, unquote(pos)) do
-        [unquote(pos)]
-      end
-    end
-  end
-
-  defmacro def_unmatched_bit() do
-    quote do
-      def match_bit(0, _pos) do
-        []
-      end
-    end
-  end
-
   defmacro def_all_match_bit() do
 
-    quote location: :keep do
-      2..128
-      |> Enum.map(fn x -> def_matched_bit(x) end)
-
-      def_unmatched_bit()
+    quote do
+      def match_bit(1, x), do: [x]
+      def match_bit(0, _x), do: []
     end
 
+  end
+
+  defmacro def_parse_msg() do
+    quote do
+      def parse_msg(msg) do
+        {list_of_bitpos, data} = parse_bmp_from_msg(msg)
+        extract_data(list_of_bitpos, data, %{})
+
+      end
+
+      def extract_data([], msg, extracted_fields) do
+        extracted_fields
+      end
+
+      def extract_data(list_of_bitpos, msg, extracted_fields) do
+
+        [curr_pos | trailer_list_pos] = list_of_bitpos
+
+        {pos, result} = parse(curr_pos, msg)
+        {:ok, field_val, trailer_msg} = result
+        extracted_fields = Map.put(extracted_fields, pos, field_val)
+        extract_data(trailer_list_pos, trailer_msg, extracted_fields)
+      end
+    end
   end
 
 
@@ -204,7 +255,7 @@ defmodule Iso8583Dec do
     conf = String.replace(conf, " ", "")
     {header_length, data_type, max_data_length} = match_conf(conf)
 
-    encoding = Module.get_attribute(__CALLER__.module, :encoding)
+    encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
 
     translated_length = translate_length(encoding, data_type, max_data_length)
     header_format = {header_length, translated_length}
@@ -214,34 +265,34 @@ defmodule Iso8583Dec do
         ->
          quote do
            def parse(unquote(pos), <<field_value::binary-size(unquote(max_data_len))>> <> data_remaining = data) do
-             translated_data = translate_data(unquote(encoding), field_value)
+             translated_data = translate_data(unquote(encoding), unquote(data_type), field_value)
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end
-     {2, max_data_len}
+     {2, _max_data_len}
         ->
          quote do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
              body_len = div(w*10+x, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(encoding), body_val)
+             translated_data = translate_data(unquote(encoding), unquote(data_type), body_val)
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
-     {3, max_data_len}
+     {3, _max_data_len}
         ->
          quote do
            def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
              body_len = div(x*100+y*10+z, 2)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(encoding), body_val)
+             translated_data = translate_data(unquote(encoding), unquote(data_type), body_val)
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
       _ ->
         quote do
            def parse(unquote(pos), <<field_value::binary-size>> <> data_remaining = data) do
-             translated_data = translate_data(unquote(encoding), field_value)
+             translated_data = translate_data(unquote(encoding), unquote(data_type), field_value)
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
          end

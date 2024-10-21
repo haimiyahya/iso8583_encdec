@@ -1,7 +1,9 @@
 defmodule TestModule do
-  use Iso8583Dec
+  use Iso8583Dec, header_encoding: :bcd,
+    bitmap_format: :bin
 
-  #define(2, "n..19")
+  define(63, "n.. 6")
+  define(64, "an 4")
 
 
 end
