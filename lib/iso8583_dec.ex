@@ -89,6 +89,11 @@ defmodule Iso8583Dec do
     data
   end
 
+  def trim_data(data, required_length) do
+    <<result::binary-size(required_length), _trailer::binary>> = data
+    result
+  end
+
   # ans, anp, an, as, ns, x+n, a, n, s, b, p, z
   # space within the conf is replaced with empty string to simplify the logic
 
@@ -266,7 +271,7 @@ defmodule Iso8583Dec do
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     numeric_encoding = Module.get_attribute(__CALLER__.module, :numeric_encoding)
 
-    data_bytes_length = translate_length(header_encoding, data_type, max_data_length)
+    data_bytes_length = translate_length(numeric_encoding, data_type, max_data_length)
     header_format = {header_length, data_bytes_length, max_data_length}
 
     case header_format do
@@ -282,11 +287,15 @@ defmodule Iso8583Dec do
         ->
          quote do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
-             body_len = div(w*10+x, 2)
+             body_len_ori = w*10+x
+             body_len = translate_length(unquote(numeric_encoding), unquote(data_type), body_len_ori)
              <<body_val::binary-size(body_len), rest::binary>> = rest
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             # follows the header length
+             translated_data = trim_data(translated_data, body_len_ori)
              # truncate too long data
              translated_data = truncate_data(translated_data, unquote(max_data_length))
+
              {unquote(pos), {:ok, translated_data, rest}}
            end
          end
@@ -294,9 +303,13 @@ defmodule Iso8583Dec do
         ->
          quote do
            def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
-             body_len = div(x*100+y*10+z, 2)
+            body_len_ori = x*100+y*10+z
+             body_len = translate_length(unquote(numeric_encoding), unquote(data_type), body_len_ori)
              <<body_val::binary-size(body_len), rest::binary>> = rest
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             # follows the header length
+             translated_data = trim_data(translated_data, body_len_ori)
+             # truncate too long data
              translated_data = truncate_data(translated_data, unquote(max_data_length))
              {unquote(pos), {:ok, translated_data, rest}}
            end
