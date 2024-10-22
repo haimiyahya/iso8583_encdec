@@ -30,7 +30,7 @@ defmodule Iso8583EncdecTest do
     msg = bmp <> f62 <> f63 <> f64
     msg = Base.decode16!(msg)
 
-    parsed_msg = BmpBinHeaderBcdDataNumBcd_AlphanumDataType.parse_msg(msg)
+    parsed_msg = BmpBinHeaderBcd_AlphanumDataType.parse_msg(msg)
 
     assert Map.get(parsed_msg, 62) == "5678"
     assert Map.get(parsed_msg, 63) == "5678"
@@ -64,7 +64,7 @@ defmodule Iso8583EncdecTest do
     msg = bmp <> f62 <> f63 <> f64
     msg = Base.decode16!(msg)
 
-    parsed_msg = BmpAsciiHeaderBcdDataNumBcd_AlphanumericDataType.parse_msg(msg)
+    parsed_msg = BmpAsciiHeaderAscii_AlphanumericDataType.parse_msg(msg)
 
     assert Map.get(parsed_msg, 62) == "5678"
     assert Map.get(parsed_msg, 63) == "5678"
@@ -81,7 +81,7 @@ defmodule Iso8583EncdecTest do
     msg = bmp <> f62 <> f63 <> f64
     msg = Base.decode16!(msg)
 
-    parsed_msg = BmpAsciiHeaderBcdDataNumBcd_NumericDataType.parse_msg(msg)
+    parsed_msg = BmpAsciiHeaderAscii_NumericDataType.parse_msg(msg)
 
     assert Map.get(parsed_msg, 62) == "5678"
     assert Map.get(parsed_msg, 63) == "5678"
@@ -103,7 +103,7 @@ defmodule BitmapBinHeaderBcd_MixedDataType do
 
 end
 
-defmodule BmpBinHeaderBcdDataNumBcd_AlphanumDataType do
+defmodule BmpBinHeaderBcd_AlphanumDataType do
   use Iso8583Dec, header_encoding: :bcd,
     numeric_encoding: :bcd,
     bitmap_format: :bin
@@ -125,7 +125,7 @@ defmodule BmpBinHeaderBcdDataNumBcd_NumericDataType do
 
 end
 
-defmodule BmpAsciiHeaderBcdDataNumBcd_AlphanumericDataType do
+defmodule BmpAsciiHeaderAscii_AlphanumericDataType do
   use Iso8583Dec, header_encoding: :ascii,
     numeric_encoding: :ascii,
     bitmap_format: :ascii
@@ -136,7 +136,7 @@ defmodule BmpAsciiHeaderBcdDataNumBcd_AlphanumericDataType do
 
 end
 
-defmodule BmpAsciiHeaderBcdDataNumBcd_NumericDataType do
+defmodule BmpAsciiHeaderAscii_NumericDataType do
   use Iso8583Dec, header_encoding: :ascii,
     numeric_encoding: :ascii,
     bitmap_format: :ascii
