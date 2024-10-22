@@ -4,11 +4,12 @@ defmodule Iso8583EncdecTest do
   alias BitmapBinaryHeaderBcd, as: Iso8583Parser
 
   test "parse f63 and f64" do
-    bmp = "0000000000000003"
+    bmp = "0000000020000003"
+    f35 = "36123456789012345678901234567890123456"
     f63 = "06123456"
     f64 = "35363738"
 
-    msg = bmp <> f63 <> f64
+    msg = bmp <> f35 <> f63 <> f64
 
     msg = Base.decode16!(msg)
     parsed_msg = Iso8583Parser.parse_msg(msg)
@@ -19,6 +20,8 @@ defmodule Iso8583EncdecTest do
     assert Map.has_key?(parsed_msg, 64)
     assert Map.get(parsed_msg, 64) == "5678"
 
+    IO.inspect(parsed_msg)
+
   end
 end
 
@@ -28,6 +31,7 @@ defmodule BitmapBinaryHeaderBcd do
     numeric_encoding: :bcd,
     bitmap_format: :bin
 
+  define(35, "z.. 39")
   define(63, "n.. 2")
   define(64, "an 4")
 
