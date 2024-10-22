@@ -55,6 +55,23 @@ defmodule Iso8583EncdecTest do
 
   end
 
+  test "parse alphanumeric field data_type with 0 digits ascii header, 2 digits ascii header and 3 digits ascii header" do
+    bmp = "30303030303030303030303030303037"
+    f62 = "35363738"
+    f63 = "303435363738"
+    f64 = "30303435363738"
+
+    msg = bmp <> f62 <> f63 <> f64
+    msg = Base.decode16!(msg)
+
+    parsed_msg = BmpAsciiHeaderBcdDataNumBcd_AlphanumericDataType.parse_msg(msg)
+
+    assert Map.get(parsed_msg, 62) == "5678"
+    assert Map.get(parsed_msg, 63) == "5678"
+    assert Map.get(parsed_msg, 64) == "5678"
+
+  end
+
   test "parse numeric field data_type with 0 digits ascii header, 2 digits ascii header and 3 digits ascii header" do
     bmp = "30303030303030303030303030303037"
     f62 = "35363738"
@@ -105,6 +122,17 @@ defmodule BmpBinHeaderBcdDataNumBcd_NumericDataType do
   define(62, "n 4")
   define(63, "n.. 4")
   define(64, "n... 4")
+
+end
+
+defmodule BmpAsciiHeaderBcdDataNumBcd_AlphanumericDataType do
+  use Iso8583Dec, header_encoding: :ascii,
+    numeric_encoding: :ascii,
+    bitmap_format: :ascii
+
+  define(62, "an 4")
+  define(63, "an.. 4")
+  define(64, "an... 4")
 
 end
 
