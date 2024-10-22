@@ -42,12 +42,12 @@ defmodule Iso8583Dec do
 
   # ascii
   def translate_length(:ascii = _header_encoding, :n = _data_type, spec_length) do
-    div(spec_length, 2)
+    spec_length
   end
 
   def translate_length(:ascii = _header_encoding, :b = _data_type, spec_length) do
   # ans, anp, an, as, ns, x+n, a, n, s, b, p, z
-  div(spec_length, 8)
+    spec_length
   end
 
   def translate_length(:ascii = _header_encoding, :z = _data_type, spec_length) do
@@ -152,16 +152,14 @@ defmodule Iso8583Dec do
         parse_bitmap(msg)
       end
 
-      defp parse_bitmap_by_format(:hex, <<first_char::8, _trailer::binary>> = data) when first_char >= ?0 and first_char <= ?7 do
+      defp parse_bitmap_by_format(:ascii, <<first_char::8, _trailer::binary>> = data) when first_char >= ?0 and first_char <= ?7 do
         <<bitmap::binary-size(16), trailer::binary>> = data
-        parse_bitmap(Base.decode16(bitmap) <> trailer)
+        parse_bitmap(Base.decode16!(bitmap) <> trailer)
       end
 
-      defp parse_bitmap_by_format(:hex, <<first_char::8, _trailer::binary>> = data) when first_char >= ?8 and first_char <= ?F do
+      defp parse_bitmap_by_format(:ascii, <<first_char::8, _trailer::binary>> = data) when first_char >= ?8 and first_char <= ?F do
         <<bitmap::binary-size(32), trailer::binary>> = data
 
-        #IO.inspect bitmap
-        #IO.inspect Base.decode16!(bitmap)
         msg = Base.decode16!(bitmap) <> trailer
         parse_bitmap(msg)
       end
@@ -241,7 +239,9 @@ defmodule Iso8583Dec do
   defmacro def_parse_msg() do
     quote do
       def parse_msg(msg) do
+
         {list_of_bitpos, data} = parse_bmp_from_msg(msg)
+
         extract_data(list_of_bitpos, data, %{})
 
       end
