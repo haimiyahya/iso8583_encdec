@@ -25,39 +25,36 @@ defmodule Iso8583Dec do
 
 
   # bcd
-  def translate_length(:n = _data_type, :bcd = _data_encoding, spec_length) do
-    div(spec_length, 2)
+  def translate_length(:n = _type, :bcd = _encoding, specified_len) do
+    div(specified_len, 2)
   end
 
-  def translate_length(:b = _data_type, :bcd = _data_encoding, spec_length) do
-  # ans, anp, an, as, ns, x+n, a, n, s, b, p, z
-  div(spec_length, 8)
+  def translate_length(:n = _type, :ascii = _encoding, specified_len) do
+    specified_len
   end
 
-  def translate_length(:z = _data_type, :bcd = _data_encoding, spec_length) do
-    div(spec_length + Integer.mod(spec_length, 2), 2)
+  def translate_length(:b = _type, :bit = _encoding, specified_len) do
+    div(specified_len, 8)
   end
 
-  def translate_length(_data_type, :bcd = _data_encoding, spec_length) do
-    spec_length
+  def translate_length(:b = _type, :bcd = _encoding, specified_len) do
+    div(specified_len, 2)
   end
 
-  # ascii
-  def translate_length(:n = _data_type, :ascii = _data_encoding, spec_length) do
-    spec_length
+  def translate_length(:b = _type, :ascii = _encoding, specified_len) do
+    specified_len*2
   end
 
-  def translate_length(:b = _data_type, :ascii = _data_encoding, spec_length) do
-  # ans, anp, an, as, ns, x+n, a, n, s, b, p, z
-    spec_length
+  def translate_length(:z = _type, :bcd = _encoding, specified_len) do
+    div(specified_len + Integer.mod(specified_len, 2), 2) # make it even
   end
 
-  def translate_length(:z = _data_type, :ascii = _data_encoding, spec_length) do
-    div(spec_length + Integer.mod(spec_length, 2), 2)
+  def translate_length(:z = _type, :ascii = _encoding, specified_len) do
+    div(specified_len + Integer.mod(specified_len, 2), 2)
   end
 
-  def translate_length(_data_type, :ascii = _data_encoding, spec_length) do
-    spec_length
+  def translate_length(_type, _encoding, specified_len) do
+    specified_len
   end
 
 
@@ -274,7 +271,7 @@ defmodule Iso8583Dec do
     numeric_encoding = Module.get_attribute(__CALLER__.module, :numeric_encoding)
     track2_encoding = Module.get_attribute(__CALLER__.module, :track2_encoding)
 
-    data_bytes_length = translate_length(numeric_encoding, data_type, max_data_length)
+    data_bytes_length = translate_length(data_type, numeric_encoding, max_data_length)
     header_format = {header_encoding, header_length, data_bytes_length, max_data_length}
 
     case header_format do
@@ -283,7 +280,7 @@ defmodule Iso8583Dec do
          quote do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
              body_len_ori = w*10+x
-             body_len = translate_length(unquote(numeric_encoding), unquote(data_type), body_len_ori)
+             body_len = translate_length(unquote(data_type), unquote(numeric_encoding), body_len_ori)
              <<body_val::binary-size(body_len), rest::binary>> = rest
              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
              # follows the header length
