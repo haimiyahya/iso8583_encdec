@@ -3,11 +3,13 @@ defmodule Iso8583Dec do
   defmacro __using__(opts) do
     bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
-    numeric_enc = if opts[:default_encoding], do: opts[:default_encoding], else: :bcd
+    default_enc = if opts[:default_encoding], do: opts[:default_encoding], else: :bcd
+    default_alignment = if opts[:default_alignment], do: opts[:default_alignment], else: :left
 
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
-    Module.put_attribute(__CALLER__.module, :default_encoding, numeric_enc)
+    Module.put_attribute(__CALLER__.module, :default_encoding, default_enc)
+    Module.put_attribute(__CALLER__.module, :default_alignment, default_alignment)
 
     quote do
       require unquote(__MODULE__)
@@ -264,7 +266,7 @@ defmodule Iso8583Dec do
   end
 
 
-  defmacro def_parse_body(pos, data_type, default_encoding, max_data_length) do
+  defmacro def_parse_body(pos, data_type, default_encoding, max_data_length, _alignment) do
 
     quote do
 
@@ -289,10 +291,11 @@ defmodule Iso8583Dec do
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     default_encoding = Module.get_attribute(__CALLER__.module, :default_encoding)
+    default_alignment = Module.get_attribute(__CALLER__.module, :default_alignment)
 
     field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
+    alignment = if opts[:alignment], do: opts[:alignment], else: default_alignment
 
-    data_bytes_length = translate_length(data_type, default_encoding, max_data_length)
     header_format = {header_encoding, header_length, max_data_length}
 
     case header_format do
@@ -304,7 +307,7 @@ defmodule Iso8583Dec do
               {unquote(pos), w*10+x, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
           end
       {:ascii, 2, _max}
         ->
@@ -313,7 +316,7 @@ defmodule Iso8583Dec do
               {unquote(pos), (w-48)*10+(x-48), rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
           end
       {:bcd, 3, _max}
@@ -323,7 +326,7 @@ defmodule Iso8583Dec do
               {unquote(pos), x*100+y*10+z, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
           end
       {:ascii, 3, _max}
@@ -333,7 +336,7 @@ defmodule Iso8583Dec do
             {unquote(pos), (x-48)*100+(y-48)*10+(z-48), rest}
           end
 
-          def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
+          def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
         end
       _
@@ -343,7 +346,7 @@ defmodule Iso8583Dec do
               {unquote(pos), unquote(max_data_length), data}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
           end
     end
