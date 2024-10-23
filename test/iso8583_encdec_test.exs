@@ -89,6 +89,23 @@ defmodule Iso8583EncdecTest do
 
   end
 
+  test "parse Z field data_type with 2 digits ascii header and 3 digits ascii header" do
+    bmp = "30303030303030303030303030303033"
+    f63 = "3035123456789012345678901234567890123450"
+    f64 = "3035123456789012345678901234567890123450"
+
+    msg = bmp <> f63 <> f64
+    msg = Base.decode16!(msg)
+
+    parsed_msg = BmpAsciiHeaderAscii_ZDataType.parse_msg(msg)
+
+    IO.inspect parsed_msg
+    # assert Map.get(parsed_msg, 63) == "5678"
+    # assert Map.get(parsed_msg, 64) == "5678"
+
+  end
+
+
 end
 
 
@@ -145,4 +162,13 @@ defmodule BmpAsciiHeaderAscii_NumericDataType do
   define(63, "n.. 4")
   define(64, "n... 4")
 
+end
+
+defmodule BmpAsciiHeaderAscii_ZDataType do
+  use Iso8583Dec, header_encoding: :ascii,
+    numeric_encoding: :ascii,
+    bitmap_format: :ascii
+
+  define(63, "z.. 37")
+  define(64, "z.. 37")
 end
