@@ -109,7 +109,7 @@ end
 
 defmodule BitmapBinHeaderBcd_MixedDataType do
   use Iso8583Dec, header_encoding: :bcd,
-    numeric_encoding: :bcd,
+    default_numeric_encoding: :bcd,
     bitmap_format: :bin
 
   define(35, "z.. 39")

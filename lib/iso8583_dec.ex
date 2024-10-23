@@ -1,15 +1,15 @@
 defmodule Iso8583Dec do
 
   defmacro __using__(opts) do
+    bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
     numeric_enc = if opts[:default_numeric_encoding], do: opts[:default_numeric_encoding], else: :bcd
-    track2_enc = if opts[:track2_encoding], do: opts[:track2_encoding], else: :bcd
-    bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
+    track2_enc = if opts[:default_track2_encoding], do: opts[:default_track2_encoding], else: :bcd
 
+    Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
     Module.put_attribute(__CALLER__.module, :default_numeric_encoding, numeric_enc)
-    Module.put_attribute(__CALLER__.module, :track2_encoding, track2_enc)
-    Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
+    Module.put_attribute(__CALLER__.module, :default_track2_encoding, track2_enc)
 
     quote do
       require unquote(__MODULE__)
@@ -290,10 +290,9 @@ defmodule Iso8583Dec do
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     default_numeric_encoding = Module.get_attribute(__CALLER__.module, :default_numeric_encoding)
-    track2_encoding = Module.get_attribute(__CALLER__.module, :track2_encoding)
+    default_track2_encoding = Module.get_attribute(__CALLER__.module, :default_track2_encoding)
 
     data_bytes_length = translate_length(data_type, default_numeric_encoding, max_data_length)
-    header_format = {header_encoding, header_length, data_bytes_length, max_data_length}
     header_format2 = {header_encoding, header_length, max_data_length}
 
     case header_format2 do
