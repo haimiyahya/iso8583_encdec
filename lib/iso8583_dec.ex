@@ -254,16 +254,8 @@ defmodule Iso8583Dec do
         [curr_pos | trailer_list_pos] = list_of_bitpos
 
         {pos, body_len, msg_trailer} = parse_header(curr_pos, msg)
-
-        IO.inspect "curr_post: #{curr_pos}"
-        IO.inspect "body_len: #{body_len}"
-        IO.inspect "msg_trailer: #{Base.encode16(msg_trailer)}"
-
         {pos, body_val, msg_trailer} = parse_body(curr_pos, body_len, msg_trailer)
 
-        #{pos, result} = parse(curr_pos, msg_trailer)
-
-        #{:ok, field_val, trailer_msg} = result
         extracted_fields = Map.put(extracted_fields, pos, body_val)
         extract_data(trailer_list_pos, msg_trailer, extracted_fields)
       end
@@ -272,28 +264,17 @@ defmodule Iso8583Dec do
     end
   end
 
-  @spec def_parse_body(any(), any(), any(), any(), any()) ::
-          {:def,
-           [
-             {:context, Iso8583Dec}
-             | {:do, [...]}
-             | {:end, [...]}
-             | {:end_of_expression, [...]}
-             | {:imports, [...]},
-             ...
-           ], [[{any(), any()}, ...] | {:parse_body, [...], [...]}, ...]}
+
   defmacro def_parse_body(pos, data_type, default_encoding, default_numeric_encoding, max_data_length) do
 
     quote do
 
       def parse_body(unquote(pos), body_len, data) do
         byte_length = translate_length(unquote(data_type), unquote(default_encoding), body_len)
-        IO.inspect("byte_length: #{byte_length}")
         <<body_val_bytes::binary-size(byte_length), rest::binary>> = data
         translated_data = translate_data(unquote(data_type), unquote(default_encoding), unquote(default_numeric_encoding), body_val_bytes)
         translated_data = trim_data(translated_data, body_len)
         translated_data = truncate_data(translated_data, unquote(max_data_length))
-        IO.inspect(translated_data)
         {unquote(pos), translated_data, rest}
       end
 
@@ -367,97 +348,6 @@ defmodule Iso8583Dec do
 
           end
     end
-
-    # case header_format do
-    #  {:bcd, 2, _data_bytes_length, max_data_length}
-    #     ->
-    #      quote do
-    #        def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
-    #          body_len_ori = w*10+x
-    #          body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
-    #          <<body_val::binary-size(body_len), rest::binary>> = rest
-    #          translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), body_val)
-    #          # follows the header length
-    #          translated_data = trim_data(translated_data, body_len_ori)
-    #          # truncate too long data
-    #          translated_data = truncate_data(translated_data, unquote(max_data_length))
-
-    #          {unquote(pos), {:ok, translated_data, rest}}
-    #        end
-    #      end
-    #   {:ascii, 2, _data_bytes_length, max_data_length}
-    #      ->
-    #       quote do
-    #         def parse(unquote(pos), <<w::8, x::8, rest::binary>> = data) do
-    #           body_len_ori = (w-48)*10+(x-48)
-    #           body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
-    #           <<body_val::binary-size(body_len), rest::binary>> = rest
-    #           translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), body_val)
-    #           # follows the header length
-    #           translated_data = trim_data(translated_data, body_len_ori)
-    #           # truncate too long data
-    #           translated_data = truncate_data(translated_data, unquote(max_data_length))
-
-    #           {unquote(pos), {:ok, translated_data, rest}}
-    #         end
-    #       end
-    #   {:bcd, 3, _data_bytes_length, max_data_length}
-    #     ->
-    #      quote do
-    #        def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
-    #         body_len_ori = x*100+y*10+z
-    #          body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
-    #          <<body_val::binary-size(body_len), rest::binary>> = rest
-    #          translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), body_val)
-    #          # follows the header length
-    #          translated_data = trim_data(translated_data, body_len_ori)
-    #          # truncate too long data
-    #          translated_data = truncate_data(translated_data, unquote(max_data_length))
-    #          {unquote(pos), {:ok, translated_data, rest}}
-    #        end
-    #      end
-    #   {:ascii, 3, _data_bytes_length, max_data_length}
-    #      ->
-    #       quote do
-    #         def parse(unquote(pos), <<x::8, y::8, z::8, rest::binary>> = data) do
-    #           body_len_ori = (x-48)*100+(y-48)*10+(z-48)
-    #           body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
-    #           <<body_val::binary-size(body_len), rest::binary>> = rest
-    #           translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), body_val)
-    #           # follows the header length
-    #           translated_data = trim_data(translated_data, body_len_ori)
-    #           # truncate too long data
-    #           translated_data = truncate_data(translated_data, unquote(max_data_length))
-    #           {unquote(pos), {:ok, translated_data, rest}}
-    #         end
-    #       end
-    #   {_header_encoding, 0, data_bytes_length, _max_data_length}
-    #     ->
-    #     quote do
-    #       def parse(unquote(pos), <<field_value::binary-size(unquote(data_bytes_length))>> <> data_remaining = data) do
-    #         translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), field_value)
-    #         {unquote(pos), {:ok, translated_data, data_remaining}}
-    #       end
-    #     end
-    #   _ ->
-    #     quote do
-    #        def parse(unquote(pos), <<field_value::binary-size>> <> data_remaining = data) do
-    #          translated_data = translate_data(unquote(data_type), unquote(header_encoding), unquote(default_numeric_encoding), field_value)
-    #          translated_data = truncate_data(translated_data, unquote(max_data_length))
-    #          {unquote(pos), {:ok, translated_data, data_remaining}}
-    #        end
-    #      end
-    # end
-
-    #quote do
-    #  def parse(unquote(pos), <<field_value::binary-size(unquote(data_length))>> <> data_remaining = data) do
-    #    {unquote(pos), {:ok, Base.encode16(field_value), data_remaining}}
-    #  end
-    #
-    #  def parse(unquote(pos), data) do
-    #    {unquote(pos), {:error, "failed to parse data", data}}
-    #  end
-    #end
 
   end
 
