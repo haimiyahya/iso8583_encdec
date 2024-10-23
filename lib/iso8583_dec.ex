@@ -273,6 +273,46 @@ defmodule Iso8583Dec do
 
     data_bytes_length = translate_length(data_type, default_numeric_encoding, max_data_length)
     header_format = {header_encoding, header_length, data_bytes_length, max_data_length}
+    header_format2 = {header_encoding, header_length, max_data_length}
+
+    case header_format2 do
+
+      {:bcd, 2, _max}
+        ->
+          quote do
+            def parse_header(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
+              w*10+x
+            end
+          end
+      {:ascii, 2, _max}
+        ->
+          quote do
+            def parse_header(unquote(pos), <<w::8, x::8, rest::binary>> = data) do
+              (w-48)*10+(x-48)
+            end
+          end
+      {:bcd, 3, _max}
+        ->
+          quote do
+            def parse_header(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
+              x*100+y*10+z
+            end
+          end
+      {:ascii, 3, _max}
+        ->
+        quote do
+          def parse_header(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
+            (x-48)*100+(y-48)*10+(z-48)
+          end
+        end
+      _
+        ->
+          quote do
+            def parse_header(unquote(pos), _data) do
+              0
+            end
+          end
+    end
 
     case header_format do
      {:bcd, 2, _data_bytes_length, max_data_length}
