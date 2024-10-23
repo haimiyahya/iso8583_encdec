@@ -2,12 +2,12 @@ defmodule Iso8583Dec do
 
   defmacro __using__(opts) do
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
-    numeric_enc = if opts[:numeric_encoding], do: opts[:numeric_encoding], else: :bcd
+    numeric_enc = if opts[:default_numeric_encoding], do: opts[:default_numeric_encoding], else: :bcd
     track2_enc = if opts[:track2_encoding], do: opts[:track2_encoding], else: :bcd
     bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
 
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
-    Module.put_attribute(__CALLER__.module, :numeric_encoding, numeric_enc)
+    Module.put_attribute(__CALLER__.module, :default_numeric_encoding, numeric_enc)
     Module.put_attribute(__CALLER__.module, :track2_encoding, track2_enc)
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
 
@@ -268,10 +268,10 @@ defmodule Iso8583Dec do
     {header_length, data_type, max_data_length} = match_conf(conf)
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
-    numeric_encoding = Module.get_attribute(__CALLER__.module, :numeric_encoding)
+    default_numeric_encoding = Module.get_attribute(__CALLER__.module, :default_numeric_encoding)
     track2_encoding = Module.get_attribute(__CALLER__.module, :track2_encoding)
 
-    data_bytes_length = translate_length(data_type, numeric_encoding, max_data_length)
+    data_bytes_length = translate_length(data_type, default_numeric_encoding, max_data_length)
     header_format = {header_encoding, header_length, data_bytes_length, max_data_length}
 
     case header_format do
@@ -280,9 +280,9 @@ defmodule Iso8583Dec do
          quote do
            def parse(unquote(pos), <<w::4, x::4, rest::binary>> = data) do
              body_len_ori = w*10+x
-             body_len = translate_length(unquote(data_type), unquote(numeric_encoding), body_len_ori)
+             body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), body_val)
              # follows the header length
              translated_data = trim_data(translated_data, body_len_ori)
              # truncate too long data
@@ -296,9 +296,9 @@ defmodule Iso8583Dec do
           quote do
             def parse(unquote(pos), <<w::8, x::8, rest::binary>> = data) do
               body_len_ori = (w-48)*10+(x-48)
-              body_len = translate_length(unquote(data_type), unquote(numeric_encoding), body_len_ori)
+              body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
               <<body_val::binary-size(body_len), rest::binary>> = rest
-              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+              translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), body_val)
               # follows the header length
               translated_data = trim_data(translated_data, body_len_ori)
               # truncate too long data
@@ -312,9 +312,9 @@ defmodule Iso8583Dec do
          quote do
            def parse(unquote(pos), <<_w::4, x::4, y::4, z::4, rest::binary>> = data) do
             body_len_ori = x*100+y*10+z
-             body_len = translate_length(unquote(data_type), unquote(numeric_encoding), body_len_ori)
+             body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
              <<body_val::binary-size(body_len), rest::binary>> = rest
-             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+             translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), body_val)
              # follows the header length
              translated_data = trim_data(translated_data, body_len_ori)
              # truncate too long data
@@ -327,9 +327,9 @@ defmodule Iso8583Dec do
           quote do
             def parse(unquote(pos), <<x::8, y::8, z::8, rest::binary>> = data) do
               body_len_ori = (x-48)*100+(y-48)*10+(z-48)
-              body_len = translate_length(unquote(data_type), unquote(numeric_encoding), body_len_ori)
+              body_len = translate_length(unquote(data_type), unquote(default_numeric_encoding), body_len_ori)
               <<body_val::binary-size(body_len), rest::binary>> = rest
-              translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), body_val)
+              translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), body_val)
               # follows the header length
               translated_data = trim_data(translated_data, body_len_ori)
               # truncate too long data
@@ -341,14 +341,14 @@ defmodule Iso8583Dec do
         ->
         quote do
           def parse(unquote(pos), <<field_value::binary-size(unquote(data_bytes_length))>> <> data_remaining = data) do
-            translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
+            translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), field_value)
             {unquote(pos), {:ok, translated_data, data_remaining}}
           end
         end
       _ ->
         quote do
            def parse(unquote(pos), <<field_value::binary-size>> <> data_remaining = data) do
-             translated_data = translate_data(unquote(header_encoding), unquote(numeric_encoding), unquote(data_type), field_value)
+             translated_data = translate_data(unquote(header_encoding), unquote(default_numeric_encoding), unquote(data_type), field_value)
              translated_data = truncate_data(translated_data, unquote(max_data_length))
              {unquote(pos), {:ok, translated_data, data_remaining}}
            end
