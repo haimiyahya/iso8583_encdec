@@ -112,7 +112,7 @@ defmodule BitmapBinHeaderBcd_MixedDataType do
     default_encoding: :bcd,
     bitmap_format: :bin
 
-  define(35, "z.. 39")
+  define(35, "z.. 39", encoding: :bcd)
   define(63, "n.. 2")
   define(64, "an 4")
 

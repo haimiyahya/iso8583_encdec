@@ -282,13 +282,15 @@ defmodule Iso8583Dec do
   end
 
 
-  defmacro define(pos, conf) do
+  defmacro define(pos, conf, opts \\ []) do
 
     conf = String.replace(conf, " ", "")
     {header_length, data_type, max_data_length} = match_conf(conf)
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     default_encoding = Module.get_attribute(__CALLER__.module, :default_encoding)
+
+    field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
 
     data_bytes_length = translate_length(data_type, default_encoding, max_data_length)
     header_format = {header_encoding, header_length, max_data_length}
@@ -302,7 +304,7 @@ defmodule Iso8583Dec do
               {unquote(pos), w*10+x, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
           end
       {:ascii, 2, _max}
         ->
@@ -311,7 +313,7 @@ defmodule Iso8583Dec do
               {unquote(pos), (w-48)*10+(x-48), rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
 
           end
       {:bcd, 3, _max}
@@ -321,7 +323,7 @@ defmodule Iso8583Dec do
               {unquote(pos), x*100+y*10+z, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
 
           end
       {:ascii, 3, _max}
@@ -331,7 +333,7 @@ defmodule Iso8583Dec do
             {unquote(pos), (x-48)*100+(y-48)*10+(z-48), rest}
           end
 
-          def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
+          def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
 
         end
       _
@@ -341,7 +343,7 @@ defmodule Iso8583Dec do
               {unquote(pos), unquote(max_data_length), data}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length))
 
           end
     end
