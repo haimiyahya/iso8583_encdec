@@ -3,13 +3,11 @@ defmodule Iso8583Dec do
   defmacro __using__(opts) do
     bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
-    numeric_enc = if opts[:default_numeric_encoding], do: opts[:default_numeric_encoding], else: :bcd
-    track2_enc = if opts[:default_track2_encoding], do: opts[:default_track2_encoding], else: :bcd
+    numeric_enc = if opts[:default_encoding], do: opts[:default_encoding], else: :bcd
 
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
-    Module.put_attribute(__CALLER__.module, :default_numeric_encoding, numeric_enc)
-    Module.put_attribute(__CALLER__.module, :default_track2_encoding, track2_enc)
+    Module.put_attribute(__CALLER__.module, :default_encoding, numeric_enc)
 
     quote do
       require unquote(__MODULE__)
@@ -59,25 +57,26 @@ defmodule Iso8583Dec do
 
 
 
-  def translate_data(:n, :bcd, :bcd, data) do
+  def translate_data(:n, :bcd, data) do
     Base.encode16(data)
   end
 
-  def translate_data(:n, :bcd, :ascii, data) do
+  def translate_data(:n, :ascii, data) do
     data
   end
 
-  def translate_data(:z, :bcd, _numeric_encoding, data) do
+  def translate_data(:z, :bcd, data) do
     Base.encode16(data)
   end
 
-  def translate_data(_data_type, :bcd, _numeric_encoding, data) do
+  def translate_data(:z, :ascii, data) do
     data
   end
 
-  def translate_data(_data_type, :ascii, _numeric_encoding, data) do
+  def translate_data(_dt, _enc, data) do
     data
   end
+
 
   def truncate_data(data, max_length) when byte_size(data) >  max_length do
     <<result::binary-size(max_length), _trailer::binary>> = data
@@ -265,14 +264,14 @@ defmodule Iso8583Dec do
   end
 
 
-  defmacro def_parse_body(pos, data_type, default_encoding, default_numeric_encoding, max_data_length) do
+  defmacro def_parse_body(pos, data_type, default_encoding, max_data_length) do
 
     quote do
 
       def parse_body(unquote(pos), body_len, data) do
         byte_length = translate_length(unquote(data_type), unquote(default_encoding), body_len)
         <<body_val_bytes::binary-size(byte_length), rest::binary>> = data
-        translated_data = translate_data(unquote(data_type), unquote(default_encoding), unquote(default_numeric_encoding), body_val_bytes)
+        translated_data = translate_data(unquote(data_type), unquote(default_encoding), body_val_bytes)
         translated_data = trim_data(translated_data, body_len)
         translated_data = truncate_data(translated_data, unquote(max_data_length))
         {unquote(pos), translated_data, rest}
@@ -289,13 +288,12 @@ defmodule Iso8583Dec do
     {header_length, data_type, max_data_length} = match_conf(conf)
 
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
-    default_numeric_encoding = Module.get_attribute(__CALLER__.module, :default_numeric_encoding)
-    default_track2_encoding = Module.get_attribute(__CALLER__.module, :default_track2_encoding)
+    default_encoding = Module.get_attribute(__CALLER__.module, :default_encoding)
 
-    data_bytes_length = translate_length(data_type, default_numeric_encoding, max_data_length)
-    header_format2 = {header_encoding, header_length, max_data_length}
+    data_bytes_length = translate_length(data_type, default_encoding, max_data_length)
+    header_format = {header_encoding, header_length, max_data_length}
 
-    case header_format2 do
+    case header_format do
 
       {:bcd, 2, _max}
         ->
@@ -304,7 +302,7 @@ defmodule Iso8583Dec do
               {unquote(pos), w*10+x, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_numeric_encoding), unquote(default_numeric_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
           end
       {:ascii, 2, _max}
         ->
@@ -313,7 +311,7 @@ defmodule Iso8583Dec do
               {unquote(pos), (w-48)*10+(x-48), rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_numeric_encoding), unquote(default_numeric_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
 
           end
       {:bcd, 3, _max}
@@ -323,7 +321,7 @@ defmodule Iso8583Dec do
               {unquote(pos), x*100+y*10+z, rest}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_numeric_encoding), unquote(default_numeric_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
 
           end
       {:ascii, 3, _max}
@@ -333,7 +331,7 @@ defmodule Iso8583Dec do
             {unquote(pos), (x-48)*100+(y-48)*10+(z-48), rest}
           end
 
-          def_parse_body(unquote(pos), unquote(data_type), unquote(default_numeric_encoding), unquote(default_numeric_encoding), unquote(max_data_length))
+          def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
 
         end
       _
@@ -343,7 +341,7 @@ defmodule Iso8583Dec do
               {unquote(pos), unquote(max_data_length), data}
             end
 
-            def_parse_body(unquote(pos), unquote(data_type), unquote(default_numeric_encoding), unquote(default_numeric_encoding), unquote(max_data_length))
+            def_parse_body(unquote(pos), unquote(data_type), unquote(default_encoding), unquote(max_data_length))
 
           end
     end
