@@ -1,6 +1,5 @@
 defmodule Iso8583EncdecTest do
   use ExUnit.Case
-  doctest Iso8583Encdec
 
   test "parse f 35, f63 and f64" do
     bmp = "0000000020000003"
@@ -89,21 +88,20 @@ defmodule Iso8583EncdecTest do
 
   end
 
-  # test "parse Z field data_type with 2 digits ascii header and 3 digits ascii header" do
-  #   bmp = "30303030303030303030303030303033"
-  #   f63 = "3035123456789012345678901234567890123450"
-  #   f64 = "3035123456789012345678901234567890123450"
+  test "parse Z field data_type with 2 digits ascii header and 3 digits ascii header" do
+    bmp = "30303030303030303030303030303033"
+    f63 = "33353132333435363738393031323334353637383930313233343536373839303132333435"
+    f64 = "303335313233343536373839303132333435363738393031323334353637383930313233343530"
 
-  #   msg = bmp <> f63 <> f64
-  #   msg = Base.decode16!(msg)
+    msg = bmp <> f63 <> f64
+    msg = Base.decode16!(msg)
 
-  #   parsed_msg = BmpAsciiHeaderAscii_ZDataType.parse_msg(msg)
+    parsed_msg = BmpAsciiHeaderAscii_ZDataType.parse_msg(msg)
 
-  #   IO.inspect parsed_msg
-  #   # assert Map.get(parsed_msg, 63) == "5678"
-  #   # assert Map.get(parsed_msg, 64) == "5678"
+    assert Map.get(parsed_msg, 63) == "12345678901234567890123456789012345"
+    assert Map.get(parsed_msg, 64) == "12345678901234567890123456789012345"
 
-  # end
+  end
 
 
 end
@@ -170,5 +168,5 @@ defmodule BmpAsciiHeaderAscii_ZDataType do
     bitmap_format: :ascii
 
   define(63, "z.. 37")
-  define(64, "z.. 37")
+  define(64, "z... 37")
 end

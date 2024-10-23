@@ -50,7 +50,7 @@ defmodule Iso8583Dec do
   end
 
   def translate_length(:z = _type, :ascii = _encoding, specified_len) do
-    div(specified_len + Integer.mod(specified_len, 2), 2)
+    specified_len
   end
 
   def translate_length(_type, _encoding, specified_len) do
