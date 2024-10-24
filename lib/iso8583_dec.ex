@@ -5,11 +5,13 @@ defmodule Iso8583Dec do
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
     default_enc = if opts[:default_encoding], do: opts[:default_encoding], else: :bcd
     default_alignment = if opts[:default_alignment], do: opts[:default_alignment], else: :left
+    default_pad_char = if opts[:default_pad_char], do: opts[:default_pad_char], else: ?0
 
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
     Module.put_attribute(__CALLER__.module, :default_encoding, default_enc)
     Module.put_attribute(__CALLER__.module, :default_alignment, default_alignment)
+    Module.put_attribute(__CALLER__.module, :default_pad_char, default_pad_char)
 
     quote do
       require unquote(__MODULE__)
@@ -56,6 +58,10 @@ defmodule Iso8583Dec do
   def translate_length(_type, _encoding, specified_len) do
     specified_len
   end
+
+  # def paf_if_required(:z = _type, val, pad_char) do
+
+  # end
 
 
 
@@ -279,6 +285,10 @@ defmodule Iso8583Dec do
         {unquote(pos), translated_data, rest}
       end
 
+      # def form_body(unquote(pos), field_val) do
+      #   byte_size(field_val)
+      # end
+
     end
 
   end
@@ -292,9 +302,11 @@ defmodule Iso8583Dec do
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     default_encoding = Module.get_attribute(__CALLER__.module, :default_encoding)
     default_alignment = Module.get_attribute(__CALLER__.module, :default_alignment)
+    default_pad_char = Module.get_attribute(__CALLER__.module, :default_pad_char)
 
     field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
     alignment = if opts[:alignment], do: opts[:alignment], else: default_alignment
+    pad_char = if opts[:pad_char], do: opts[:pad_char], else: default_pad_char
 
     header_format = {header_encoding, header_length, max_data_length}
 
