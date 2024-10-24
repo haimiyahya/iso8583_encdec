@@ -328,9 +328,10 @@ defmodule Iso8583Dec do
   end
 
 
-  def un_truncate_data(data, max_length) when byte_size(data) >  max_length do
-    <<result::binary-size(max_length), _trailer::binary>> = data
-    result
+
+
+  def pad_if_required(:n, field_val, required_length, pad_char) when byte_size(field_value) < required_length do
+    field_value <> pad_char
   end
 
   def un_truncate_data(data, _max_length) do
