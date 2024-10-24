@@ -27,41 +27,37 @@ defmodule Iso8583Dec do
 
 
   # bcd
-  def translate_length(:n = _type, :bcd = _encoding, specified_len) do
+  def translate_length_to_byte(:n = _type, :bcd = _encoding, specified_len) do
     div(specified_len, 2)
   end
 
-  def translate_length(:n = _type, :ascii = _encoding, specified_len) do
+  def translate_length_to_byte(:n = _type, :ascii = _encoding, specified_len) do
     specified_len
   end
 
-  def translate_length(:b = _type, :bit = _encoding, specified_len) do
+  def translate_length_to_byte(:b = _type, :bit = _encoding, specified_len) do
     div(specified_len, 8)
   end
 
-  def translate_length(:b = _type, :bcd = _encoding, specified_len) do
+  def translate_length_to_byte(:b = _type, :bcd = _encoding, specified_len) do
     div(specified_len, 2)
   end
 
-  def translate_length(:b = _type, :ascii = _encoding, specified_len) do
+  def translate_length_to_byte(:b = _type, :ascii = _encoding, specified_len) do
     specified_len*2
   end
 
-  def translate_length(:z = _type, :bcd = _encoding, specified_len) do
+  def translate_length_to_byte(:z = _type, :bcd = _encoding, specified_len) do
     div(specified_len + Integer.mod(specified_len, 2), 2) # make it even
   end
 
-  def translate_length(:z = _type, :ascii = _encoding, specified_len) do
+  def translate_length_to_byte(:z = _type, :ascii = _encoding, specified_len) do
     specified_len
   end
 
-  def translate_length(_type, _encoding, specified_len) do
+  def translate_length_to_byte(_type, _encoding, specified_len) do
     specified_len
   end
-
-  # def paf_if_required(:z = _type, val, pad_char) do
-
-  # end
 
 
 
@@ -69,6 +65,7 @@ defmodule Iso8583Dec do
     Base.encode16(data)
   end
 
+  @spec translate_data(any(), any(), any()) :: any()
   def translate_data(:n, :ascii, data) do
     data
   end
@@ -277,7 +274,7 @@ defmodule Iso8583Dec do
     quote do
 
       def parse_body(unquote(pos), body_len, data) do
-        byte_length = translate_length(unquote(data_type), unquote(default_encoding), body_len)
+        byte_length = translate_length_to_byte(unquote(data_type), unquote(default_encoding), body_len)
         <<body_val_bytes::binary-size(byte_length), rest::binary>> = data
         translated_data = translate_data(unquote(data_type), unquote(default_encoding), body_val_bytes)
         translated_data = trim_data(translated_data, body_len)
@@ -285,13 +282,62 @@ defmodule Iso8583Dec do
         {unquote(pos), translated_data, rest}
       end
 
-      # def form_body(unquote(pos), field_val) do
-      #   byte_size(field_val)
-      # end
+      def form_body(unquote(pos), field_val) do
+        byte_size(field_val)
+      end
 
     end
 
   end
+
+  # determine the size (fixed or not fixed)
+  def determine_data_size(_field_val, dtype, :bcd, 0, max_data_length) when dtype in [:n, :z] do
+    max_data_length + Integer.mod(max_data_length, 2)
+  end
+
+  def determine_data_size(_field_val, dtype, :ascii, 0, max_data_length) when dtype in [:n, :z] do
+    max_data_length
+  end
+
+  def determine_data_size(field_val, dtype, :bcd, _head_size, max_data_length) when dtype in [:n, :z] and byte_size(field_val) > max_data_length do
+    max_data_length + Integer.mod(max_data_length, 2)
+  end
+
+  def determine_data_size(field_val, dtype, :bcd, _head_size, max_data_length) when dtype in [:n, :z] and byte_size(field_val) <= max_data_length do
+    byte_size(field_val) + Integer.mod(byte_size(field_val), 2)
+  end
+
+  def determine_data_size(field_val, dtype, :ascii, _head_size, max_data_length) when dtype in [:n, :z] and byte_size(field_val) > max_data_length do
+    max_data_length
+  end
+
+  def determine_data_size(field_val, dtype, :ascii, _head_size, max_data_length) when dtype in [:n, :z] and byte_size(field_val) <= max_data_length do
+    byte_size(field_val)
+  end
+
+  def determine_data_size(_field_val, _dtype, _encoding, 0, max_data_length) do
+    max_data_length
+  end
+
+  def determine_data_size(field_val, _dtype, _encoding, _head_size, max_data_length) when byte_size(field_val) > max_data_length do
+    max_data_length
+  end
+
+  def determine_data_size(field_val, _dtype, _encoding, _head_size, max_data_length) when byte_size(field_val) <= max_data_length do
+    byte_size(field_val)
+  end
+
+
+  def un_truncate_data(data, max_length) when byte_size(data) >  max_length do
+    <<result::binary-size(max_length), _trailer::binary>> = data
+    result
+  end
+
+  def un_truncate_data(data, _max_length) do
+    data
+  end
+
+  #def pad_if_required()
 
 
   defmacro define(pos, conf, opts \\ []) do
@@ -306,7 +352,7 @@ defmodule Iso8583Dec do
 
     field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
     alignment = if opts[:alignment], do: opts[:alignment], else: default_alignment
-    pad_char = if opts[:pad_char], do: opts[:pad_char], else: default_pad_char
+    _pad_char = if opts[:pad_char], do: opts[:pad_char], else: default_pad_char
 
     header_format = {header_encoding, header_length, max_data_length}
 
