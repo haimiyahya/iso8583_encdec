@@ -330,9 +330,17 @@ defmodule Iso8583Dec do
 
 
 
-  def pad_if_required(:n, field_val, required_length, pad_char) when byte_size(field_value) < required_length do
-    field_value <> pad_char
+  def pad(field_val, dtype, required_length, pad_char, :left) when dtype in [:a, :n, :an, :as, :ns, :ans, :s, :z] do
+    field_val
+    |> String.pad_trailing(required_length, to_string([pad_char]))
   end
+
+  def pad(field_val, dtype, required_length, pad_char, :right) when dtype in [:a, :n, :an, :as, :ns, :ans, :s, :z] do
+    field_val
+    |> String.pad_leading(required_length, to_string([pad_char]))
+  end
+
+
 
   def un_truncate_data(data, _max_length) do
     data
