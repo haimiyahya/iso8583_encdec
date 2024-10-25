@@ -27,7 +27,6 @@ defmodule Iso8583Dec do
   end
 
 
-
   # bcd
   def translate_length_to_byte(:n = _type, :bcd = _encoding, specified_len) do
     div(specified_len, 2)
@@ -271,25 +270,31 @@ defmodule Iso8583Dec do
   end
 
 
-  defmacro def_parse_body(pos, data_type, default_encoding, max_data_length, _alignment) do
+  defmacro def_parse_body(pos, data_type, encoding, max_data_length, _alignment) do
 
     quote do
 
       def parse_body(unquote(pos), body_len, data) do
-        byte_length = translate_length_to_byte(unquote(data_type), unquote(default_encoding), body_len)
+        byte_length = translate_length_to_byte(unquote(data_type), unquote(encoding), body_len)
         <<body_val_bytes::binary-size(byte_length), rest::binary>> = data
-        translated_data = translate_data(unquote(data_type), unquote(default_encoding), body_val_bytes)
+        translated_data = translate_data(unquote(data_type), unquote(encoding), body_val_bytes)
         translated_data = trim_data(translated_data, body_len)
         translated_data = truncate_data(translated_data, unquote(max_data_length))
         {unquote(pos), translated_data, rest}
       end
 
-      def form_body(unquote(pos), field_val) do
-        byte_size(field_val)
-      end
-
     end
 
+  end
+
+  defmacro def_form_body(pos, data_type, encoding, max_data_length, alignment, header_size, pad_char) do
+
+    quote do
+      def form_body(pos, field_val) do
+        data_size = determine_data_size(field_val, unquote(data_type), unquote(encoding), unquote(header_size), unquote(max_data_length))
+        padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char))
+      end
+    end
   end
 
   # determine the size (fixed or not fixed)
@@ -329,6 +334,8 @@ defmodule Iso8583Dec do
     byte_size(field_val)
   end
 
+  # not yet defined determine_data_size for the bit data
+
 
 
 
@@ -342,13 +349,11 @@ defmodule Iso8583Dec do
     |> String.pad_leading(required_length, to_string([pad_char]))
   end
 
+  # not yet defined pad for the bit data
 
 
-  def un_truncate_data(data, _max_length) do
-    data
-  end
 
-  #def pad_if_required()
+
 
 
   defmacro define(pos, conf, opts \\ []) do
@@ -369,7 +374,7 @@ defmodule Iso8583Dec do
 
     field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
     alignment = if opts[:alignment], do: opts[:alignment], else: default_alignment
-    _pad_char = if opts[:pad_char], do: opts[:pad_char], else: default_pad_char
+    pad_char = if opts[:pad_char], do: opts[:pad_char], else: default_pad_char
 
     header_format = {header_encoding, header_length, max_data_length}
 
@@ -383,6 +388,14 @@ defmodule Iso8583Dec do
             end
 
             def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
+
+            def form_header(unquote(pos), field_value) do
+              data_size = byte_size(field_value)
+              data_size_w = div(data_size, 10)
+              data_size_x = rem(data_size, 10)
+              header_val = <<data_size_w::4, data_size_x::4>>
+              {unquote(pos), header_val}
+            end
           end
       {:ascii, 2, _max}
         ->
