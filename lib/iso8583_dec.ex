@@ -5,13 +5,15 @@ defmodule Iso8583Dec do
     header_enc = if opts[:header_encoding], do: opts[:header_encoding], else: :bcd
     default_enc = if opts[:default_encoding], do: opts[:default_encoding], else: :bcd
     default_alignment = if opts[:default_alignment], do: opts[:default_alignment], else: :left
-    default_pad_char = if opts[:default_pad_char], do: opts[:default_pad_char], else: ?0
+    default_numeric_pad_char = if opts[:default_numeric_pad_char], do: opts[:default_numeric_pad_char], else: ?0
+    default_alphanumeric_pad_char = if opts[:default_alphanumeric_pad_char], do: opts[:default_alphanumeric_pad_char], else: ?\s
 
     Module.put_attribute(__CALLER__.module, :bitmap_format, bitmap_format)
     Module.put_attribute(__CALLER__.module, :header_encoding, header_enc)
     Module.put_attribute(__CALLER__.module, :default_encoding, default_enc)
     Module.put_attribute(__CALLER__.module, :default_alignment, default_alignment)
-    Module.put_attribute(__CALLER__.module, :default_pad_char, default_pad_char)
+    Module.put_attribute(__CALLER__.module, :default_numeric_pad_char, default_numeric_pad_char)
+    Module.put_attribute(__CALLER__.module, :default_alphanumeric_pad_char, default_alphanumeric_pad_char)
 
     quote do
       require unquote(__MODULE__)
@@ -357,7 +359,13 @@ defmodule Iso8583Dec do
     header_encoding = Module.get_attribute(__CALLER__.module, :header_encoding)
     default_encoding = Module.get_attribute(__CALLER__.module, :default_encoding)
     default_alignment = Module.get_attribute(__CALLER__.module, :default_alignment)
-    default_pad_char = Module.get_attribute(__CALLER__.module, :default_pad_char)
+    default_numeric_pad_char = Module.get_attribute(__CALLER__.module, :default_numeric_pad_char)
+    default_alphanumeric_pad_char = Module.get_attribute(__CALLER__.module, :default_alphanumeric_pad_char)
+
+    default_pad_char = case data_type do
+      type when type in [:n, :z] -> default_numeric_pad_char
+      _ -> default_alphanumeric_pad_char
+    end
 
     field_encoding = if opts[:encoding], do: opts[:encoding], else: default_encoding
     alignment = if opts[:alignment], do: opts[:alignment], else: default_alignment
