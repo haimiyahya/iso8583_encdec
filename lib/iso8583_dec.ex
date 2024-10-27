@@ -406,6 +406,14 @@ defmodule Iso8583Dec do
 
             def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
+            def form_header(unquote(pos), field_value) do
+              data_size = byte_size(field_value)
+              data_size_w = div(data_size, 10) + 48
+              data_size_x = rem(data_size, 10) + 48
+              header_val = <<data_size_w::8, data_size_x::8>>
+              {unquote(pos), header_val}
+            end
+
           end
       {:bcd, 3, _max}
         ->
@@ -416,6 +424,16 @@ defmodule Iso8583Dec do
 
             def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
+            def form_header(unquote(pos), field_value) do
+              data_size = byte_size(field_value)
+              data_size_w = 0
+              data_size_x = data_size |> div(100)
+              data_size_y = data_size - (data_size_x*100) |> div(10)
+              data_size_z = data_size - (data_size_x*100) - (data_size_y*10)
+              header_val = <<data_size_w::4, data_size_x::4, data_size_y::4, data_size_z::4>>
+              {unquote(pos), header_val}
+            end
+
           end
       {:ascii, 3, _max}
         ->
@@ -425,6 +443,19 @@ defmodule Iso8583Dec do
           end
 
           def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
+
+          def form_header(unquote(pos), field_value) do
+            data_size = byte_size(field_value)
+            data_size_x = div(data_size, 100)
+            data_size_y = data_size - (data_size_x*100) |> div(10)
+            data_size_z = data_size - (data_size_x*100) - (data_size_y*10)
+
+            data_size_x = data_size_x + 48
+            data_size_y = data_size_y + 48
+            data_size_z = data_size_z + 48
+            header_val = <<data_size_x::8, data_size_y::8, data_size_z::8>>
+            {unquote(pos), header_val}
+          end
 
         end
       _
