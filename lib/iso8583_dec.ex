@@ -290,9 +290,9 @@ defmodule Iso8583Dec do
   defmacro def_form_body(pos, data_type, encoding, max_data_length, alignment, header_size, pad_char) do
 
     quote do
-      def form_body(pos, field_val) do
+      def form_body(unquote(pos), field_val) do
         data_size = determine_data_size(field_val, unquote(data_type), unquote(encoding), unquote(header_size), unquote(max_data_length))
-        padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char))
+        padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
       end
     end
   end
