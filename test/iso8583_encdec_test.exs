@@ -103,7 +103,6 @@ defmodule Iso8583EncdecTest do
 
   end
 
-
 end
 
 
