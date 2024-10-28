@@ -181,13 +181,13 @@ defmodule Iso8583Dec do
           b51::1, b52::1, b53::1, b54::1, b55::1, b56::1, b57::1, b58::1, b59::1, b60::1,
           b61::1, b62::1, b63::1, b64::1, data::binary >>) do
 
-        result = match_bit(b2, 2) ++ match_bit(b3, 3) ++ match_bit(b4, 4) ++ match_bit(b5, 5) ++ match_bit(b6, 6) ++ match_bit(b7, 7) ++ match_bit(b8, 8) ++ match_bit(b9, 9) ++ match_bit(b10, 10)
-        ++ match_bit(b11, 11) ++ match_bit(b12, 12) ++ match_bit(b13, 13) ++ match_bit(b14, 14) ++ match_bit(b15, 15) ++ match_bit(b16, 16) ++ match_bit(b17, 17) ++ match_bit(b18, 18) ++ match_bit(b19, 19) ++ match_bit(b20, 20)
-        ++ match_bit(b21, 21) ++ match_bit(b22, 22) ++ match_bit(b23, 23) ++ match_bit(b24, 24) ++ match_bit(b25, 25) ++ match_bit(b26, 26) ++ match_bit(b27, 27) ++ match_bit(b28, 28) ++ match_bit(b29, 29) ++ match_bit(b30, 30)
-        ++ match_bit(b31, 31) ++ match_bit(b32, 32) ++ match_bit(b33, 33) ++ match_bit(b34, 34) ++ match_bit(b35, 35) ++ match_bit(b36, 36) ++ match_bit(b37, 37) ++ match_bit(b38, 38) ++ match_bit(b39, 39) ++ match_bit(b30, 30)
-        ++ match_bit(b41, 41) ++ match_bit(b42, 42) ++ match_bit(b43, 43) ++ match_bit(b44, 44) ++ match_bit(b45, 45) ++ match_bit(b46, 46) ++ match_bit(b47, 47) ++ match_bit(b48, 48) ++ match_bit(b49, 49) ++ match_bit(b50, 50)
-        ++ match_bit(b51, 51) ++ match_bit(b52, 52) ++ match_bit(b53, 53) ++ match_bit(b54, 54) ++ match_bit(b55, 55) ++ match_bit(b56, 56) ++ match_bit(b57, 57) ++ match_bit(b58, 58) ++ match_bit(b59, 59) ++ match_bit(b60, 60)
-        ++ match_bit(b61, 61) ++ match_bit(b62, 62) ++ match_bit(b63, 63) ++ match_bit(b64, 64)
+        result = get_bit_position(b2, 2) ++ get_bit_position(b3, 3) ++ get_bit_position(b4, 4) ++ get_bit_position(b5, 5) ++ get_bit_position(b6, 6) ++ get_bit_position(b7, 7) ++ get_bit_position(b8, 8) ++ get_bit_position(b9, 9) ++ get_bit_position(b10, 10)
+        ++ get_bit_position(b11, 11) ++ get_bit_position(b12, 12) ++ get_bit_position(b13, 13) ++ get_bit_position(b14, 14) ++ get_bit_position(b15, 15) ++ get_bit_position(b16, 16) ++ get_bit_position(b17, 17) ++ get_bit_position(b18, 18) ++ get_bit_position(b19, 19) ++ get_bit_position(b20, 20)
+        ++ get_bit_position(b21, 21) ++ get_bit_position(b22, 22) ++ get_bit_position(b23, 23) ++ get_bit_position(b24, 24) ++ get_bit_position(b25, 25) ++ get_bit_position(b26, 26) ++ get_bit_position(b27, 27) ++ get_bit_position(b28, 28) ++ get_bit_position(b29, 29) ++ get_bit_position(b30, 30)
+        ++ get_bit_position(b31, 31) ++ get_bit_position(b32, 32) ++ get_bit_position(b33, 33) ++ get_bit_position(b34, 34) ++ get_bit_position(b35, 35) ++ get_bit_position(b36, 36) ++ get_bit_position(b37, 37) ++ get_bit_position(b38, 38) ++ get_bit_position(b39, 39) ++ get_bit_position(b30, 30)
+        ++ get_bit_position(b41, 41) ++ get_bit_position(b42, 42) ++ get_bit_position(b43, 43) ++ get_bit_position(b44, 44) ++ get_bit_position(b45, 45) ++ get_bit_position(b46, 46) ++ get_bit_position(b47, 47) ++ get_bit_position(b48, 48) ++ get_bit_position(b49, 49) ++ get_bit_position(b50, 50)
+        ++ get_bit_position(b51, 51) ++ get_bit_position(b52, 52) ++ get_bit_position(b53, 53) ++ get_bit_position(b54, 54) ++ get_bit_position(b55, 55) ++ get_bit_position(b56, 56) ++ get_bit_position(b57, 57) ++ get_bit_position(b58, 58) ++ get_bit_position(b59, 59) ++ get_bit_position(b60, 60)
+        ++ get_bit_position(b61, 61) ++ get_bit_position(b62, 62) ++ get_bit_position(b63, 63) ++ get_bit_position(b64, 64)
 
         {result, data}
 
@@ -208,19 +208,19 @@ defmodule Iso8583Dec do
           b111::1, b112::1, b113::1, b114::1, b115::1, b116::1, b117::1, b118::1, b119::1, b120::1,
           b121::1, b122::1, b123::1, b124::1, b125::1, b126::1, b127::1, b128::1, data::binary >>) do
 
-        result = match_bit(b2, 2) ++ match_bit(b3, 3) ++ match_bit(b4, 4) ++ match_bit(b5, 5) ++ match_bit(b6, 6) ++ match_bit(b7, 7) ++ match_bit(b8, 8) ++ match_bit(b9, 9) ++ match_bit(b10, 10)
-        ++ match_bit(b11, 11) ++ match_bit(b12, 12) ++ match_bit(b13, 13) ++ match_bit(b14, 14) ++ match_bit(b15, 15) ++ match_bit(b16, 16) ++ match_bit(b17, 17) ++ match_bit(b18, 18) ++ match_bit(b19, 19) ++ match_bit(b20, 20)
-        ++ match_bit(b21, 21) ++ match_bit(b22, 22) ++ match_bit(b23, 23) ++ match_bit(b24, 24) ++ match_bit(b25, 25) ++ match_bit(b26, 26) ++ match_bit(b27, 27) ++ match_bit(b28, 28) ++ match_bit(b29, 29) ++ match_bit(b30, 30)
-        ++ match_bit(b31, 31) ++ match_bit(b32, 32) ++ match_bit(b33, 33) ++ match_bit(b34, 34) ++ match_bit(b35, 35) ++ match_bit(b36, 36) ++ match_bit(b37, 37) ++ match_bit(b38, 38) ++ match_bit(b39, 39) ++ match_bit(b40, 40)
-        ++ match_bit(b41, 41) ++ match_bit(b42, 42) ++ match_bit(b43, 43) ++ match_bit(b44, 44) ++ match_bit(b45, 45) ++ match_bit(b46, 46) ++ match_bit(b47, 47) ++ match_bit(b48, 48) ++ match_bit(b49, 49) ++ match_bit(b50, 50)
-        ++ match_bit(b51, 51) ++ match_bit(b52, 52) ++ match_bit(b53, 53) ++ match_bit(b54, 54) ++ match_bit(b55, 55) ++ match_bit(b56, 56) ++ match_bit(b57, 57) ++ match_bit(b58, 58) ++ match_bit(b59, 59) ++ match_bit(b60, 60)
-        ++ match_bit(b61, 61) ++ match_bit(b62, 62) ++ match_bit(b63, 63) ++ match_bit(b64, 64) ++ match_bit(b65, 65) ++ match_bit(b66, 66) ++ match_bit(b67, 67) ++ match_bit(b68, 68) ++ match_bit(b69, 69) ++ match_bit(b70, 70)
-        ++ match_bit(b71, 71) ++ match_bit(b72, 72) ++ match_bit(b73, 73) ++ match_bit(b74, 74) ++ match_bit(b75, 75) ++ match_bit(b76, 76) ++ match_bit(b77, 77) ++ match_bit(b78, 78) ++ match_bit(b79, 79) ++ match_bit(b80, 80)
-        ++ match_bit(b81, 81) ++ match_bit(b82, 82) ++ match_bit(b83, 83) ++ match_bit(b84, 84) ++ match_bit(b85, 85) ++ match_bit(b86, 86) ++ match_bit(b87, 87) ++ match_bit(b88, 88) ++ match_bit(b89, 89) ++ match_bit(b90, 90)
-        ++ match_bit(b91, 91) ++ match_bit(b92, 92) ++ match_bit(b93, 93) ++ match_bit(b94, 94) ++ match_bit(b95, 95) ++ match_bit(b96, 96) ++ match_bit(b97, 97) ++ match_bit(b98, 98) ++ match_bit(b99, 99) ++ match_bit(b100, 100)
-        ++ match_bit(b101, 101) ++ match_bit(b102, 102) ++ match_bit(b103, 103) ++ match_bit(b104, 104) ++ match_bit(b105, 105) ++ match_bit(b106, 106) ++ match_bit(b107, 107) ++ match_bit(b108, 108) ++ match_bit(b109, 109) ++ match_bit(b110, 110)
-        ++ match_bit(b111, 111) ++ match_bit(b112, 112) ++ match_bit(b113, 113) ++ match_bit(b114, 114) ++ match_bit(b115, 115) ++ match_bit(b116, 116) ++ match_bit(b117, 117) ++ match_bit(b118, 118) ++ match_bit(b119, 119) ++ match_bit(b120, 120)
-        ++ match_bit(b121, 121) ++ match_bit(b122, 122) ++ match_bit(b123, 123) ++ match_bit(b124, 124) ++ match_bit(b125, 125) ++ match_bit(b126, 126) ++ match_bit(b127, 127) ++ match_bit(b128, 128)
+        result = get_bit_position(b2, 2) ++ get_bit_position(b3, 3) ++ get_bit_position(b4, 4) ++ get_bit_position(b5, 5) ++ get_bit_position(b6, 6) ++ get_bit_position(b7, 7) ++ get_bit_position(b8, 8) ++ get_bit_position(b9, 9) ++ get_bit_position(b10, 10)
+        ++ get_bit_position(b11, 11) ++ get_bit_position(b12, 12) ++ get_bit_position(b13, 13) ++ get_bit_position(b14, 14) ++ get_bit_position(b15, 15) ++ get_bit_position(b16, 16) ++ get_bit_position(b17, 17) ++ get_bit_position(b18, 18) ++ get_bit_position(b19, 19) ++ get_bit_position(b20, 20)
+        ++ get_bit_position(b21, 21) ++ get_bit_position(b22, 22) ++ get_bit_position(b23, 23) ++ get_bit_position(b24, 24) ++ get_bit_position(b25, 25) ++ get_bit_position(b26, 26) ++ get_bit_position(b27, 27) ++ get_bit_position(b28, 28) ++ get_bit_position(b29, 29) ++ get_bit_position(b30, 30)
+        ++ get_bit_position(b31, 31) ++ get_bit_position(b32, 32) ++ get_bit_position(b33, 33) ++ get_bit_position(b34, 34) ++ get_bit_position(b35, 35) ++ get_bit_position(b36, 36) ++ get_bit_position(b37, 37) ++ get_bit_position(b38, 38) ++ get_bit_position(b39, 39) ++ get_bit_position(b40, 40)
+        ++ get_bit_position(b41, 41) ++ get_bit_position(b42, 42) ++ get_bit_position(b43, 43) ++ get_bit_position(b44, 44) ++ get_bit_position(b45, 45) ++ get_bit_position(b46, 46) ++ get_bit_position(b47, 47) ++ get_bit_position(b48, 48) ++ get_bit_position(b49, 49) ++ get_bit_position(b50, 50)
+        ++ get_bit_position(b51, 51) ++ get_bit_position(b52, 52) ++ get_bit_position(b53, 53) ++ get_bit_position(b54, 54) ++ get_bit_position(b55, 55) ++ get_bit_position(b56, 56) ++ get_bit_position(b57, 57) ++ get_bit_position(b58, 58) ++ get_bit_position(b59, 59) ++ get_bit_position(b60, 60)
+        ++ get_bit_position(b61, 61) ++ get_bit_position(b62, 62) ++ get_bit_position(b63, 63) ++ get_bit_position(b64, 64) ++ get_bit_position(b65, 65) ++ get_bit_position(b66, 66) ++ get_bit_position(b67, 67) ++ get_bit_position(b68, 68) ++ get_bit_position(b69, 69) ++ get_bit_position(b70, 70)
+        ++ get_bit_position(b71, 71) ++ get_bit_position(b72, 72) ++ get_bit_position(b73, 73) ++ get_bit_position(b74, 74) ++ get_bit_position(b75, 75) ++ get_bit_position(b76, 76) ++ get_bit_position(b77, 77) ++ get_bit_position(b78, 78) ++ get_bit_position(b79, 79) ++ get_bit_position(b80, 80)
+        ++ get_bit_position(b81, 81) ++ get_bit_position(b82, 82) ++ get_bit_position(b83, 83) ++ get_bit_position(b84, 84) ++ get_bit_position(b85, 85) ++ get_bit_position(b86, 86) ++ get_bit_position(b87, 87) ++ get_bit_position(b88, 88) ++ get_bit_position(b89, 89) ++ get_bit_position(b90, 90)
+        ++ get_bit_position(b91, 91) ++ get_bit_position(b92, 92) ++ get_bit_position(b93, 93) ++ get_bit_position(b94, 94) ++ get_bit_position(b95, 95) ++ get_bit_position(b96, 96) ++ get_bit_position(b97, 97) ++ get_bit_position(b98, 98) ++ get_bit_position(b99, 99) ++ get_bit_position(b100, 100)
+        ++ get_bit_position(b101, 101) ++ get_bit_position(b102, 102) ++ get_bit_position(b103, 103) ++ get_bit_position(b104, 104) ++ get_bit_position(b105, 105) ++ get_bit_position(b106, 106) ++ get_bit_position(b107, 107) ++ get_bit_position(b108, 108) ++ get_bit_position(b109, 109) ++ get_bit_position(b110, 110)
+        ++ get_bit_position(b111, 111) ++ get_bit_position(b112, 112) ++ get_bit_position(b113, 113) ++ get_bit_position(b114, 114) ++ get_bit_position(b115, 115) ++ get_bit_position(b116, 116) ++ get_bit_position(b117, 117) ++ get_bit_position(b118, 118) ++ get_bit_position(b119, 119) ++ get_bit_position(b120, 120)
+        ++ get_bit_position(b121, 121) ++ get_bit_position(b122, 122) ++ get_bit_position(b123, 123) ++ get_bit_position(b124, 124) ++ get_bit_position(b125, 125) ++ get_bit_position(b126, 126) ++ get_bit_position(b127, 127) ++ get_bit_position(b128, 128)
 
         {result, data}
 
@@ -230,12 +230,61 @@ defmodule Iso8583Dec do
 
   end
 
+  defmacro def_build_bitmap() do
+    bitmap_format = Module.get_attribute(__CALLER__.module, :bitmap_format)
+
+    quote do
+
+      defp build_bitmap(fields, 0) do
+
+        bitmap = <<0::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
+        get_position_bit(fields, 11)::1, get_position_bit(fields, 12)::1, get_position_bit(fields, 13)::1, get_position_bit(fields, 14)::1, get_position_bit(fields, 15)::1, get_position_bit(fields, 16)::1, get_position_bit(fields, 17)::1, get_position_bit(fields, 18)::1, get_position_bit(fields, 19)::1, get_position_bit(fields, 20)::1,
+        get_position_bit(fields, 21)::1, get_position_bit(fields, 22)::1, get_position_bit(fields, 23)::1, get_position_bit(fields, 24)::1, get_position_bit(fields, 25)::1, get_position_bit(fields, 26)::1, get_position_bit(fields, 27)::1, get_position_bit(fields, 28)::1, get_position_bit(fields, 29)::1, get_position_bit(fields, 30)::1,
+        get_position_bit(fields, 31)::1, get_position_bit(fields, 32)::1, get_position_bit(fields, 33)::1, get_position_bit(fields, 34)::1, get_position_bit(fields, 35)::1, get_position_bit(fields, 36)::1, get_position_bit(fields, 37)::1, get_position_bit(fields, 38)::1, get_position_bit(fields, 39)::1, get_position_bit(fields, 40)::1,
+        get_position_bit(fields, 41)::1, get_position_bit(fields, 42)::1, get_position_bit(fields, 43)::1, get_position_bit(fields, 44)::1, get_position_bit(fields, 45)::1, get_position_bit(fields, 46)::1, get_position_bit(fields, 47)::1, get_position_bit(fields, 48)::1, get_position_bit(fields, 49)::1, get_position_bit(fields, 50)::1,
+        get_position_bit(fields, 51)::1, get_position_bit(fields, 52)::1, get_position_bit(fields, 53)::1, get_position_bit(fields, 54)::1, get_position_bit(fields, 55)::1, get_position_bit(fields, 56)::1, get_position_bit(fields, 57)::1, get_position_bit(fields, 58)::1, get_position_bit(fields, 59)::1, get_position_bit(fields, 60)::1,
+        get_position_bit(fields, 61)::1, get_position_bit(fields, 62)::1, get_position_bit(fields, 63)::1, get_position_bit(fields, 64)::1>>
+
+        bitmap
+
+      end
+
+        defp build_bitmap(
+            <<1::1,  b2::1,  b3::1,  b4::1,  b5::1,  b6::1,  b7::1,  b8::1,  b9::1, b10::1,
+            b11::1, b12::1, b13::1, b14::1, b15::1, b16::1, b17::1, b18::1, b19::1, b20::1,
+            b21::1, b22::1, b23::1, b24::1, b25::1, b26::1, b27::1, b28::1, b29::1, b30::1,
+            b31::1, b32::1, b33::1, b34::1, b35::1, b36::1, b37::1, b38::1, b39::1, b40::1,
+            b41::1, b42::1, b43::1, b44::1, b45::1, b46::1, b47::1, b48::1, b49::1, b50::1,
+            b51::1, b52::1, b53::1, b54::1, b55::1, b56::1, b57::1, b58::1, b59::1, b60::1,
+            b61::1, b62::1, b63::1, b64::1, b65::1, b66::1, b67::1, b68::1, b69::1, b70::1,
+            b71::1, b72::1, b73::1, b74::1, b75::1, b76::1, b77::1, b78::1, b79::1, b80::1,
+            b81::1, b82::1, b83::1, b84::1, b85::1, b86::1, b87::1, b88::1, b89::1, b90::1,
+            b91::1, b92::1, b93::1, b94::1, b95::1, b96::1, b97::1, b98::1, b99::1, b100::1,
+            b101::1, b102::1, b103::1, b104::1, b105::1, b106::1, b107::1, b108::1, b109::1, b110::1,
+            b111::1, b112::1, b113::1, b114::1, b115::1, b116::1, b117::1, b118::1, b119::1, b120::1,
+            b121::1, b122::1, b123::1, b124::1, b125::1, b126::1, b127::1, b128::1, data::binary >>) do
+
+
+          {result, data}
+
+        end
+    end
+
+  end
+
 
   defmacro def_all_match_bit() do
 
     quote do
-      def match_bit(1, x), do: [x]
-      def match_bit(0, _x), do: []
+      def get_bit_position(1, x), do: [x]
+      def get_bit_position(0, _x), do: []
+
+      def get_position_bit(fields, pos) do
+        case Map.has_key?(fields, pos) do
+          true -> 1
+          false -> 0
+        end
+      end
     end
 
   end
