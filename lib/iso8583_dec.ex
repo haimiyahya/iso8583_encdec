@@ -237,7 +237,7 @@ defmodule Iso8583Dec do
 
       defp build_bitmap(fields, 0) do
 
-        bitmap = <<0::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
+        <<0::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
         get_position_bit(fields, 11)::1, get_position_bit(fields, 12)::1, get_position_bit(fields, 13)::1, get_position_bit(fields, 14)::1, get_position_bit(fields, 15)::1, get_position_bit(fields, 16)::1, get_position_bit(fields, 17)::1, get_position_bit(fields, 18)::1, get_position_bit(fields, 19)::1, get_position_bit(fields, 20)::1,
         get_position_bit(fields, 21)::1, get_position_bit(fields, 22)::1, get_position_bit(fields, 23)::1, get_position_bit(fields, 24)::1, get_position_bit(fields, 25)::1, get_position_bit(fields, 26)::1, get_position_bit(fields, 27)::1, get_position_bit(fields, 28)::1, get_position_bit(fields, 29)::1, get_position_bit(fields, 30)::1,
         get_position_bit(fields, 31)::1, get_position_bit(fields, 32)::1, get_position_bit(fields, 33)::1, get_position_bit(fields, 34)::1, get_position_bit(fields, 35)::1, get_position_bit(fields, 36)::1, get_position_bit(fields, 37)::1, get_position_bit(fields, 38)::1, get_position_bit(fields, 39)::1, get_position_bit(fields, 40)::1,
@@ -245,29 +245,27 @@ defmodule Iso8583Dec do
         get_position_bit(fields, 51)::1, get_position_bit(fields, 52)::1, get_position_bit(fields, 53)::1, get_position_bit(fields, 54)::1, get_position_bit(fields, 55)::1, get_position_bit(fields, 56)::1, get_position_bit(fields, 57)::1, get_position_bit(fields, 58)::1, get_position_bit(fields, 59)::1, get_position_bit(fields, 60)::1,
         get_position_bit(fields, 61)::1, get_position_bit(fields, 62)::1, get_position_bit(fields, 63)::1, get_position_bit(fields, 64)::1>>
 
-        bitmap
-
       end
 
-        defp build_bitmap(
-            <<1::1,  b2::1,  b3::1,  b4::1,  b5::1,  b6::1,  b7::1,  b8::1,  b9::1, b10::1,
-            b11::1, b12::1, b13::1, b14::1, b15::1, b16::1, b17::1, b18::1, b19::1, b20::1,
-            b21::1, b22::1, b23::1, b24::1, b25::1, b26::1, b27::1, b28::1, b29::1, b30::1,
-            b31::1, b32::1, b33::1, b34::1, b35::1, b36::1, b37::1, b38::1, b39::1, b40::1,
-            b41::1, b42::1, b43::1, b44::1, b45::1, b46::1, b47::1, b48::1, b49::1, b50::1,
-            b51::1, b52::1, b53::1, b54::1, b55::1, b56::1, b57::1, b58::1, b59::1, b60::1,
-            b61::1, b62::1, b63::1, b64::1, b65::1, b66::1, b67::1, b68::1, b69::1, b70::1,
-            b71::1, b72::1, b73::1, b74::1, b75::1, b76::1, b77::1, b78::1, b79::1, b80::1,
-            b81::1, b82::1, b83::1, b84::1, b85::1, b86::1, b87::1, b88::1, b89::1, b90::1,
-            b91::1, b92::1, b93::1, b94::1, b95::1, b96::1, b97::1, b98::1, b99::1, b100::1,
-            b101::1, b102::1, b103::1, b104::1, b105::1, b106::1, b107::1, b108::1, b109::1, b110::1,
-            b111::1, b112::1, b113::1, b114::1, b115::1, b116::1, b117::1, b118::1, b119::1, b120::1,
-            b121::1, b122::1, b123::1, b124::1, b125::1, b126::1, b127::1, b128::1, data::binary >>) do
+      defp build_bitmap(fields, 1) do
 
+        <<1::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
+        get_position_bit(fields, 11)::1, get_position_bit(fields, 12)::1, get_position_bit(fields, 13)::1, get_position_bit(fields, 14)::1, get_position_bit(fields, 15)::1, get_position_bit(fields, 16)::1, get_position_bit(fields, 17)::1, get_position_bit(fields, 18)::1, get_position_bit(fields, 19)::1, get_position_bit(fields, 20)::1,
+        get_position_bit(fields, 21)::1, get_position_bit(fields, 22)::1, get_position_bit(fields, 23)::1, get_position_bit(fields, 24)::1, get_position_bit(fields, 25)::1, get_position_bit(fields, 26)::1, get_position_bit(fields, 27)::1, get_position_bit(fields, 28)::1, get_position_bit(fields, 29)::1, get_position_bit(fields, 30)::1,
+        get_position_bit(fields, 31)::1, get_position_bit(fields, 32)::1, get_position_bit(fields, 33)::1, get_position_bit(fields, 34)::1, get_position_bit(fields, 35)::1, get_position_bit(fields, 36)::1, get_position_bit(fields, 37)::1, get_position_bit(fields, 38)::1, get_position_bit(fields, 39)::1, get_position_bit(fields, 40)::1,
+        get_position_bit(fields, 41)::1, get_position_bit(fields, 42)::1, get_position_bit(fields, 43)::1, get_position_bit(fields, 44)::1, get_position_bit(fields, 45)::1, get_position_bit(fields, 46)::1, get_position_bit(fields, 47)::1, get_position_bit(fields, 48)::1, get_position_bit(fields, 49)::1, get_position_bit(fields, 50)::1,
+        get_position_bit(fields, 51)::1, get_position_bit(fields, 52)::1, get_position_bit(fields, 53)::1, get_position_bit(fields, 54)::1, get_position_bit(fields, 55)::1, get_position_bit(fields, 56)::1, get_position_bit(fields, 57)::1, get_position_bit(fields, 58)::1, get_position_bit(fields, 59)::1, get_position_bit(fields, 60)::1,
+        get_position_bit(fields, 61)::1, get_position_bit(fields, 62)::1, get_position_bit(fields, 63)::1, get_position_bit(fields, 64)::1,
+        get_position_bit(fields, 65)::1, get_position_bit(fields, 66)::1, get_position_bit(fields, 67)::1, get_position_bit(fields, 68)::1, get_position_bit(fields, 69)::1, get_position_bit(fields, 70)::1,
+        get_position_bit(fields, 71)::1, get_position_bit(fields, 72)::1, get_position_bit(fields, 73)::1, get_position_bit(fields, 74)::1, get_position_bit(fields, 75)::1, get_position_bit(fields, 76)::1, get_position_bit(fields, 77)::1, get_position_bit(fields, 78)::1, get_position_bit(fields, 79)::1, get_position_bit(fields, 80)::1,
+        get_position_bit(fields, 81)::1, get_position_bit(fields, 82)::1, get_position_bit(fields, 83)::1, get_position_bit(fields, 84)::1, get_position_bit(fields, 85)::1, get_position_bit(fields, 86)::1, get_position_bit(fields, 87)::1, get_position_bit(fields, 88)::1, get_position_bit(fields, 89)::1, get_position_bit(fields, 90)::1,
+        get_position_bit(fields, 91)::1, get_position_bit(fields, 92)::1, get_position_bit(fields, 93)::1, get_position_bit(fields, 94)::1, get_position_bit(fields, 95)::1, get_position_bit(fields, 96)::1, get_position_bit(fields, 97)::1, get_position_bit(fields, 98)::1, get_position_bit(fields, 99)::1, get_position_bit(fields, 100)::1,
+        get_position_bit(fields, 101)::1, get_position_bit(fields, 102)::1, get_position_bit(fields, 103)::1, get_position_bit(fields, 104)::1, get_position_bit(fields, 105)::1, get_position_bit(fields, 106)::1, get_position_bit(fields, 107)::1, get_position_bit(fields, 108)::1, get_position_bit(fields, 109)::1, get_position_bit(fields, 110)::1,
+        get_position_bit(fields, 111)::1, get_position_bit(fields, 112)::1, get_position_bit(fields, 113)::1, get_position_bit(fields, 114)::1, get_position_bit(fields, 115)::1, get_position_bit(fields, 116)::1, get_position_bit(fields, 117)::1, get_position_bit(fields, 118)::1, get_position_bit(fields, 119)::1, get_position_bit(fields, 120)::1,
+        get_position_bit(fields, 121)::1, get_position_bit(fields, 122)::1, get_position_bit(fields, 123)::1, get_position_bit(fields, 124)::1, get_position_bit(fields, 125)::1, get_position_bit(fields, 126)::1, get_position_bit(fields, 127)::1, get_position_bit(fields, 128)::1
+        >>
 
-          {result, data}
-
-        end
+      end
     end
 
   end
