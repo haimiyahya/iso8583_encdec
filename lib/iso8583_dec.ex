@@ -268,11 +268,14 @@ defmodule Iso8583Dec do
       end
 
       def build_msg(fields) do
-        first_bit_value = case when bit_more_than_64_exists?(fields), true -> 1, false -> 0 end
+
+        first_bit_value = cond do
+          bit_more_than_64_exists?(fields) -> 1
+          false -> 0
+        end
+
         raw_bitmap = build_bitmap(fields, first_bit_value)
         formatted_bitmap = build_bitmap_to_format(unquote(bitmap_format), raw_bitmap)
-
-
 
       end
 
