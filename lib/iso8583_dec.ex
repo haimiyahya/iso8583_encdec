@@ -266,6 +266,24 @@ defmodule Iso8583Dec do
         >>
 
       end
+
+      def build_msg(fields) do
+        first_bit_value = case when bit_more_than_64_exists?(fields), true -> 1, false -> 0 end
+        raw_bitmap = build_bitmap(fields, first_bit_value)
+        formatted_bitmap = build_bitmap_to_format(unquote(bitmap_format), raw_bitmap)
+
+
+
+      end
+
+      defp build_bitmap_to_format(:bin, bitmap) do
+        bitmap
+      end
+
+      defp build_bitmap_to_format(:ascii, bitmap) do
+        Base.encode16(bitmap)
+      end
+
     end
 
   end
@@ -283,6 +301,12 @@ defmodule Iso8583Dec do
           false -> 0
         end
       end
+
+      def bit_more_than_64_exists?(fields) do
+        65..128
+        |> Enum.any?(fn x -> Map.has_key?(fields, x) end)
+      end
+
     end
 
   end
