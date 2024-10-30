@@ -22,6 +22,7 @@ defmodule Iso8583Dec do
       def_all_match_bit()
       def_parse_bitmap()
       def_parse_msg()
+      def_build_bitmap()
     end
 
   end
@@ -235,9 +236,9 @@ defmodule Iso8583Dec do
 
     quote do
 
-      defp build_bitmap(fields, 0) do
+      def build_bitmap(fields, 0) do
 
-        <<0::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
+        <<0::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, get_position_bit(fields, 10)::1,
         get_position_bit(fields, 11)::1, get_position_bit(fields, 12)::1, get_position_bit(fields, 13)::1, get_position_bit(fields, 14)::1, get_position_bit(fields, 15)::1, get_position_bit(fields, 16)::1, get_position_bit(fields, 17)::1, get_position_bit(fields, 18)::1, get_position_bit(fields, 19)::1, get_position_bit(fields, 20)::1,
         get_position_bit(fields, 21)::1, get_position_bit(fields, 22)::1, get_position_bit(fields, 23)::1, get_position_bit(fields, 24)::1, get_position_bit(fields, 25)::1, get_position_bit(fields, 26)::1, get_position_bit(fields, 27)::1, get_position_bit(fields, 28)::1, get_position_bit(fields, 29)::1, get_position_bit(fields, 30)::1,
         get_position_bit(fields, 31)::1, get_position_bit(fields, 32)::1, get_position_bit(fields, 33)::1, get_position_bit(fields, 34)::1, get_position_bit(fields, 35)::1, get_position_bit(fields, 36)::1, get_position_bit(fields, 37)::1, get_position_bit(fields, 38)::1, get_position_bit(fields, 39)::1, get_position_bit(fields, 40)::1,
@@ -247,9 +248,9 @@ defmodule Iso8583Dec do
 
       end
 
-      defp build_bitmap(fields, 1) do
+      def build_bitmap(fields, 1) do
 
-        <<1::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, bget_position_bit(fields, 10)::1,
+        <<1::1,  get_position_bit(fields, 2)::1,  get_position_bit(fields, 3)::1,  get_position_bit(fields, 4)::1,  get_position_bit(fields, 5)::1,  get_position_bit(fields, 6)::1,  get_position_bit(fields, 7)::1,  get_position_bit(fields, 8)::1,  get_position_bit(fields, 9)::1, get_position_bit(fields, 10)::1,
         get_position_bit(fields, 11)::1, get_position_bit(fields, 12)::1, get_position_bit(fields, 13)::1, get_position_bit(fields, 14)::1, get_position_bit(fields, 15)::1, get_position_bit(fields, 16)::1, get_position_bit(fields, 17)::1, get_position_bit(fields, 18)::1, get_position_bit(fields, 19)::1, get_position_bit(fields, 20)::1,
         get_position_bit(fields, 21)::1, get_position_bit(fields, 22)::1, get_position_bit(fields, 23)::1, get_position_bit(fields, 24)::1, get_position_bit(fields, 25)::1, get_position_bit(fields, 26)::1, get_position_bit(fields, 27)::1, get_position_bit(fields, 28)::1, get_position_bit(fields, 29)::1, get_position_bit(fields, 30)::1,
         get_position_bit(fields, 31)::1, get_position_bit(fields, 32)::1, get_position_bit(fields, 33)::1, get_position_bit(fields, 34)::1, get_position_bit(fields, 35)::1, get_position_bit(fields, 36)::1, get_position_bit(fields, 37)::1, get_position_bit(fields, 38)::1, get_position_bit(fields, 39)::1, get_position_bit(fields, 40)::1,
