@@ -36,11 +36,18 @@ defmodule Iso8583FormBitmapTest do
     assert bitmap_val == <<0::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 0, 0::1, 0::1, 0::1, 0::1, 0::1, 0::1, 0::1, 1::1, 0::32, 0::1, 0::1, 0::1, 0::1, 0::1, 1::1, 1::1, 1::1>>
   end
 
-  test "build binary bitmap with field 2, 65 with first bit turned on" do
+  test "build binary bitmap with field 2, 65; with first bit turned on" do
     fields = %{2 => "123", 65 => "111"}
     bitmap_val = BitmapBinHeader2Bcd_BitmapTest1.build_bitmap(fields, 1)
 
     assert bitmap_val == <<1::1, 1::1, 0::6, 0::56, 1::1, 0::7, 0::56>>
+  end
+
+  test "build binary bitmap with field 2, 128; with first bit turned on" do
+    fields = %{2 => "123", 128 => "222"}
+    bitmap_val = BitmapBinHeader2Bcd_BitmapTest1.build_bitmap(fields, 1)
+
+    assert bitmap_val == <<1::1, 1::1, 0::6, 0::56, 0::8, 0::55, 1::1>>
   end
 
 end
@@ -62,5 +69,6 @@ defmodule BitmapBinHeader2Bcd_BitmapTest1 do
   define(63, "n 6")
   define(64, "n 6")
   define(65, "n 6")
+  define(128, "n 6")
 
 end

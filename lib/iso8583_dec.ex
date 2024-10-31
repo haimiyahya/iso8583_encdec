@@ -63,26 +63,32 @@ defmodule Iso8583Dec do
 
 
 
-  def translate_data(:n, :bcd, data) do
+  def translate_data_from_raw(:n, :bcd, data) do
     Base.encode16(data)
   end
 
-  @spec translate_data(any(), any(), any()) :: any()
-  def translate_data(:n, :ascii, data) do
+  def translate_data_from_raw(:n, :ascii, data) do
     data
   end
 
-  def translate_data(:z, :bcd, data) do
+  def translate_data_from_raw(:z, :bcd, data) do
     Base.encode16(data)
   end
 
-  def translate_data(:z, :ascii, data) do
+  def translate_data_from_raw(:z, :ascii, data) do
     data
   end
 
-  def translate_data(_dt, _enc, data) do
+  def translate_data_from_raw(_dt, _enc, data) do
     data
   end
+
+
+  def translate_data_to_raw(:n, :bcd, data), do: Base.decode16!(data)
+  def translate_data_to_raw(:n, :ascii, data), do: data
+  def translate_data_to_raw(:z, :bcd, data), do: Base.decode16!(data)
+  def translate_data_to_raw(:z, :ascii, data), do: data
+  def translate_data_to_raw(_dt, _enc, data), do: data
 
 
   def truncate_data(data, max_length) when byte_size(data) >  max_length do
@@ -352,7 +358,7 @@ defmodule Iso8583Dec do
       def parse_body(unquote(pos), body_len, data) do
         byte_length = translate_length_to_byte(unquote(data_type), unquote(encoding), body_len)
         <<body_val_bytes::binary-size(byte_length), rest::binary>> = data
-        translated_data = translate_data(unquote(data_type), unquote(encoding), body_val_bytes)
+        translated_data = translate_data_from_raw(unquote(data_type), unquote(encoding), body_val_bytes)
         translated_data = trim_data(translated_data, body_len)
         translated_data = truncate_data(translated_data, unquote(max_data_length))
         {unquote(pos), translated_data, rest}
@@ -368,6 +374,8 @@ defmodule Iso8583Dec do
       def form_body(unquote(pos), field_val) do
         data_size = determine_data_size(field_val, unquote(data_type), unquote(encoding), unquote(header_size), unquote(max_data_length))
         padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
+        translated_data = translate_data_to_raw(unquote(data_type), unquote(encoding), padded_data)
+        {unquote(pos), translated_data}
       end
     end
   end
@@ -471,6 +479,8 @@ defmodule Iso8583Dec do
               header_val = <<data_size_w::4, data_size_x::4>>
               {unquote(pos), header_val}
             end
+
+            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 2, unquote(pad_char))
           end
       {:ascii, 2, _max}
         ->
@@ -488,6 +498,8 @@ defmodule Iso8583Dec do
               header_val = <<data_size_w::8, data_size_x::8>>
               {unquote(pos), header_val}
             end
+
+            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 2, unquote(pad_char))
 
           end
       {:bcd, 3, _max}
@@ -508,6 +520,8 @@ defmodule Iso8583Dec do
               header_val = <<data_size_w::4, data_size_x::4, data_size_y::4, data_size_z::4>>
               {unquote(pos), header_val}
             end
+
+            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
 
           end
       {:ascii, 3, _max}
@@ -531,6 +545,8 @@ defmodule Iso8583Dec do
             header_val = <<data_size_x::8, data_size_y::8, data_size_z::8>>
             {unquote(pos), header_val}
           end
+
+          def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
 
         end
       _
