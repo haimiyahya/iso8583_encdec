@@ -276,13 +276,16 @@ defmodule Iso8583Dec do
 
       def build_msg(fields) do
 
-        first_bit_value = cond do
-          bit_more_than_64_exists?(fields) -> 1
+        first_bit_value = case bit_more_than_64_exists?(fields) do
+          true -> 1
           false -> 0
         end
 
         raw_bitmap = build_bitmap(fields, first_bit_value)
         formatted_bitmap = build_bitmap_to_format(unquote(bitmap_format), raw_bitmap)
+        formatted_fields = build_fields(first_bit_value, fields)
+
+        formatted_bitmap <> formatted_fields
 
       end
 
@@ -292,6 +295,33 @@ defmodule Iso8583Dec do
 
       defp build_bitmap_to_format(:ascii, bitmap) do
         Base.encode16(bitmap)
+      end
+
+      defp build_fields(0 = _first_bit_value, fields) do
+        2..64
+        |> Enum.reduce(<<>>, fn x, acc
+          ->
+            formed_field_val = Map.get(fields, x) |> build_field_if_exists(x)
+            acc <> formed_field_val
+          end)
+      end
+
+      defp build_fields(1 = _first_bit_value, fields) do
+        2..128
+        |> Enum.reduce(<<>>, fn x, acc
+          ->
+            formed_field_val = Map.get(fields, x) |> build_field_if_exists(x)
+            acc <> formed_field_val
+          end)
+      end
+
+      defp build_field_if_exists(nil = _field_value, _pos) do
+        <<>>
+      end
+
+      defp build_field_if_exists(field_value, pos) do
+        formed_value = form_field(pos, field_value)
+        formed_value
       end
 
     end
@@ -376,6 +406,18 @@ defmodule Iso8583Dec do
         padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
         translated_data = translate_data_to_raw(unquote(data_type), unquote(encoding), padded_data)
         {unquote(pos), translated_data}
+      end
+    end
+  end
+
+  defmacro def_form_field(pos) do
+
+    quote do
+      def form_field(unquote(pos), field_value) do
+        {_bitpos, header_value} = form_header(unquote(pos), field_value)
+        {_bitpos, body_value} = form_body(unquote(pos), field_value)
+
+        header_value <> body_value
       end
     end
   end
@@ -481,6 +523,8 @@ defmodule Iso8583Dec do
             end
 
             def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 2, unquote(pad_char))
+
+            def_form_field(unquote(pos))
           end
       {:ascii, 2, _max}
         ->
@@ -500,6 +544,8 @@ defmodule Iso8583Dec do
             end
 
             def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 2, unquote(pad_char))
+
+            def_form_field(unquote(pos))
 
           end
       {:bcd, 3, _max}
@@ -522,6 +568,8 @@ defmodule Iso8583Dec do
             end
 
             def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
+
+            def_form_field(unquote(pos))
 
           end
       {:ascii, 3, _max}
@@ -548,6 +596,8 @@ defmodule Iso8583Dec do
 
           def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
 
+          def_form_field(unquote(pos))
+
         end
       _
         ->
@@ -557,6 +607,23 @@ defmodule Iso8583Dec do
             end
 
             def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
+
+            def form_header(unquote(pos), field_value) do
+              data_size = byte_size(field_value)
+              data_size_x = div(data_size, 100)
+              data_size_y = data_size - (data_size_x*100) |> div(10)
+              data_size_z = data_size - (data_size_x*100) - (data_size_y*10)
+
+              data_size_x = data_size_x + 48
+              data_size_y = data_size_y + 48
+              data_size_z = data_size_z + 48
+              header_val = <<data_size_x::8, data_size_y::8, data_size_z::8>>
+              {unquote(pos), header_val}
+            end
+
+            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
+
+            def_form_field(unquote(pos))
 
           end
     end
