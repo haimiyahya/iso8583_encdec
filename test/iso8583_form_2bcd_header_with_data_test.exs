@@ -68,7 +68,6 @@ defmodule Iso8583Form2BcdHeaderWithDataTest do
     {^field_pos, body_val} = BitmapBinHeader2Bcd_MixedDataType_HeaderWithDataTest.form_body(field_pos, field_val)
     assert Base.encode16(hval) == "11"
     field_val2 = hval <> body_val
-
     assert field_val2 == Base.decode16!("11") <> "12345678901"
   end
 
@@ -76,14 +75,20 @@ defmodule Iso8583Form2BcdHeaderWithDataTest do
     field_val = "12345678901234567"
     field_pos = 64
     {^field_pos, hval} = BitmapBinHeader2Bcd_MixedDataType_HeaderWithDataTest.form_header(field_pos, field_val)
+    {^field_pos, body_val} = BitmapBinHeader2Bcd_MixedDataType_HeaderWithDataTest.form_body(field_pos, field_val)
     assert Base.encode16(hval) == "17"
+    field_val2 = hval <> body_val
+    assert field_val2 == Base.decode16!("17") <> "12345678901234567"
   end
 
   test "build an header 37" do
     field_val = "12345678901234567890123456789012345"
     field_pos = 64
     {^field_pos, hval} = BitmapBinHeader2Bcd_MixedDataType_HeaderWithDataTest.form_header(field_pos, field_val)
+    {^field_pos, body_val} = BitmapBinHeader2Bcd_MixedDataType_HeaderWithDataTest.form_body(field_pos, field_val)
     assert Base.encode16(hval) == "35"
+    field_val2 = hval <> body_val
+    assert field_val2 == Base.decode16!("35") <> "12345678901234567890123456789012345"
   end
 
 
