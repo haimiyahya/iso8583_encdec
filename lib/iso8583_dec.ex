@@ -403,7 +403,8 @@ defmodule Iso8583Dec do
     quote do
       def form_body(unquote(pos), field_val) do
         data_size = determine_data_size(field_val, unquote(data_type), unquote(encoding), unquote(header_size), unquote(max_data_length))
-        padded_data = pad(field_val, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
+        truncated_data = truncate_data(field_val, data_size)
+        padded_data = pad(truncated_data, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
         translated_data = translate_data_to_raw(unquote(data_type), unquote(encoding), padded_data)
         {unquote(pos), translated_data}
       end
@@ -414,8 +415,8 @@ defmodule Iso8583Dec do
 
     quote do
       def form_field(unquote(pos), field_value) do
-        {_bitpos, header_value} = form_header(unquote(pos), field_value)
         {_bitpos, body_value} = form_body(unquote(pos), field_value)
+        {_bitpos, header_value} = form_header(unquote(pos), body_value)
 
         header_value <> body_value
       end

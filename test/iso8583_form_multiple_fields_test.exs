@@ -5,8 +5,63 @@ defmodule Iso8583Form2AsciiHeaderFormMultipleFieldTest do
     fields = %{35 => "1234567890123456"}
     msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
 
-    IO.inspect(msg_val)
     assert msg_val == <<0::34, 1::1, 0::29>> <> "161234567890123456"
+  end
+
+  test "build z header 20" do
+    fields = %{35 => "12345678901234567890"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::34, 1::1, 0::29>> <> "2012345678901234567890"
+  end
+
+  test "build z header 40" do
+    fields = %{35 => "1234567890123456789012345678901234567890"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::34, 1::1, 0::29>> <> "39123456789012345678901234567890123456789"
+  end
+
+  test "build n header 55" do
+    fields = %{63 => "1234567890123456789012345678901234567890123456789012345"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::62, 1::1, 0::1>> <> "551234567890123456789012345678901234567890123456789012345"
+  end
+
+  test "build n header 99" do
+    fields = %{63 => "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::62, 1::1, 0::1>> <> "99123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789"
+  end
+
+  test "build an header 16" do
+    fields = %{64 => "1234567890123456"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::63, 1::1>> <> "161234567890123456"
+  end
+
+  test "build an header 26" do
+    fields = %{64 => "12345678901234567890123456"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::63, 1::1>> <> "2612345678901234567890123456"
+  end
+
+  test "build an header 30" do
+    fields = %{64 => "123456789012345678901234567890"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::63, 1::1>> <> "30123456789012345678901234567890"
+  end
+
+  test "build an header 36" do
+    fields = %{64 => "1234567890123456789012345678901234567890"}
+    msg_val = BitmapBinHeader2Ascii_MixedDataType_FormMultipleField.build_msg(fields)
+
+    assert msg_val == <<0::63, 1::1>> <> "36123456789012345678901234567890123456"
   end
 
 
