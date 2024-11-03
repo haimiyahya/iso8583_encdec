@@ -403,9 +403,11 @@ defmodule Iso8583Dec do
     quote do
       def form_body(unquote(pos), field_val) do
         data_size = determine_data_size(field_val, unquote(data_type), unquote(encoding), unquote(header_size), unquote(max_data_length))
+
         truncated_data = truncate_data(field_val, data_size)
         padded_data = pad(truncated_data, unquote(data_type), data_size, unquote(pad_char), unquote(alignment))
         translated_data = translate_data_to_raw(unquote(data_type), unquote(encoding), padded_data)
+
         {unquote(pos), translated_data}
       end
     end
@@ -610,19 +612,10 @@ defmodule Iso8583Dec do
             def_parse_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment))
 
             def form_header(unquote(pos), field_value) do
-              data_size = byte_size(field_value)
-              data_size_x = div(data_size, 100)
-              data_size_y = data_size - (data_size_x*100) |> div(10)
-              data_size_z = data_size - (data_size_x*100) - (data_size_y*10)
-
-              data_size_x = data_size_x + 48
-              data_size_y = data_size_y + 48
-              data_size_z = data_size_z + 48
-              header_val = <<data_size_x::8, data_size_y::8, data_size_z::8>>
-              {unquote(pos), header_val}
+              {unquote(pos), <<>>}
             end
 
-            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 3, unquote(pad_char))
+            def_form_body(unquote(pos), unquote(data_type), unquote(field_encoding), unquote(max_data_length), unquote(alignment), 0, unquote(pad_char))
 
             def_form_field(unquote(pos))
 
