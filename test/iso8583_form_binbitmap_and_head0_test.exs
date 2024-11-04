@@ -1,4 +1,4 @@
-defmodule Iso8583FormBitmapAndHead0Test do
+defmodule Iso8583FormBinBitmapAndHead0Test do
   use ExUnit.Case
 
   test "build z header 0 test 1" do

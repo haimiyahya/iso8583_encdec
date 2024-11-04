@@ -5,14 +5,14 @@ defmodule Iso8583FormBitmapTest do
     fields = %{2 => "123", 3 => "456", 4 => "567"}
     bitmap_val = BitmapBinHeader2Bcd_BitmapTest1.build_bitmap(fields, 0)
 
-    assert bitmap_val == <<0::1, 1::1, 1::1, 1::1, 0::1, 0::1, 0::1, 0::1, 0, 0, 0, 0, 0, 0, 0>>
+    assert bitmap_val == <<0::1, 1::1, 1::1, 1::1, 0::1, 0::1, 0::1, 0::1, 0::56>>
   end
 
   test "build binary bitmap with field 2, 3, 4, 5, 6, 7, 8" do
     fields = %{2 => "123", 3 => "456", 4 => "567", 5 => "567", 6 => "567", 7 => "567", 8 => "567"}
     bitmap_val = BitmapBinHeader2Bcd_BitmapTest1.build_bitmap(fields, 0)
 
-    assert bitmap_val == <<0::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 0, 0, 0, 0, 0, 0, 0>>
+    assert bitmap_val == <<0::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 1::1, 0::56>>
   end
 
   test "build binary bitmap with field 2, 3, 4, 5, 6, 7, 8, 24, 62, 63" do

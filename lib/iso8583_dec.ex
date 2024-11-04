@@ -467,6 +467,13 @@ defmodule Iso8583Dec do
 
 
 
+  @spec pad(
+          binary(),
+          :a | :an | :ans | :as | :n | :ns | :s | :z,
+          non_neg_integer(),
+          any(),
+          :left | :right
+        ) :: binary()
   def pad(field_val, dtype, required_length, pad_char, :left) when dtype in [:a, :n, :an, :as, :ns, :ans, :s, :z] do
     field_val
     |> String.pad_trailing(required_length, to_string([pad_char]))
