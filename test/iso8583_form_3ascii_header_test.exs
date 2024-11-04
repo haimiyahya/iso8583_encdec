@@ -68,7 +68,7 @@ defmodule Iso8583Form3AsciiHeaderTest do
 end
 
 defmodule BitmapBinHeader3Ascii_MixedDataType do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :bin
 

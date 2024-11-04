@@ -68,7 +68,7 @@ defmodule Iso8583Form3BcdHeaderTest do
 end
 
 defmodule BitmapBinHeader3Bcd_MixedDataType do
-  use Iso8583Dec, header_encoding: :bcd,
+  use Iso8583EncDec, header_encoding: :bcd,
     default_encoding: :bcd,
     bitmap_format: :bin
 

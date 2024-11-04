@@ -95,7 +95,7 @@ defmodule Iso8583Form2AsciiHeaderWithDataTest do
 end
 
 defmodule BitmapBinHeader2Ascii_MixedDataType_HeaderAndBodyTest do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :bin
 

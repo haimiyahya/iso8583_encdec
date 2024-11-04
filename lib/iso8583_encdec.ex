@@ -1,4 +1,4 @@
-defmodule Iso8583Dec do
+defmodule Iso8583EncDec do
 
   defmacro __using__(opts) do
     bitmap_format = if opts[:bitmap_format], do: opts[:bitmap_format], else: :bin

@@ -94,7 +94,7 @@ defmodule Iso8583FormAsciiBitmapAndHead2AsciiTest do
 end
 
 defmodule BitmapAsciiHeader2Ascii_Iso8583FormBitmapAndHead2AsciiTest do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :ascii
 

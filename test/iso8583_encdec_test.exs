@@ -107,7 +107,7 @@ end
 
 
 defmodule BitmapBinHeaderBcd_MixedDataType do
-  use Iso8583Dec, header_encoding: :bcd,
+  use Iso8583EncDec, header_encoding: :bcd,
     default_encoding: :bcd,
     bitmap_format: :bin
 
@@ -118,7 +118,7 @@ defmodule BitmapBinHeaderBcd_MixedDataType do
 end
 
 defmodule BmpBinHeaderBcd_AlphanumDataType do
-  use Iso8583Dec, header_encoding: :bcd,
+  use Iso8583EncDec, header_encoding: :bcd,
     default_encoding: :bcd,
     bitmap_format: :bin
 
@@ -129,7 +129,7 @@ defmodule BmpBinHeaderBcd_AlphanumDataType do
 end
 
 defmodule BmpBinHeaderBcdDataNumBcd_NumericDataType do
-  use Iso8583Dec, header_encoding: :bcd,
+  use Iso8583EncDec, header_encoding: :bcd,
     default_encoding: :bcd,
     bitmap_format: :bin
 
@@ -140,7 +140,7 @@ defmodule BmpBinHeaderBcdDataNumBcd_NumericDataType do
 end
 
 defmodule BmpAsciiHeaderAscii_AlphanumericDataType do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :ascii
 
@@ -151,7 +151,7 @@ defmodule BmpAsciiHeaderAscii_AlphanumericDataType do
 end
 
 defmodule BmpAsciiHeaderAscii_NumericDataType do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :ascii
 
@@ -162,7 +162,7 @@ defmodule BmpAsciiHeaderAscii_NumericDataType do
 end
 
 defmodule BmpAsciiHeaderAscii_ZDataType do
-  use Iso8583Dec, header_encoding: :ascii,
+  use Iso8583EncDec, header_encoding: :ascii,
     default_encoding: :ascii,
     bitmap_format: :ascii
 
