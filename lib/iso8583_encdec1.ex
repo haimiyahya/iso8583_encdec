@@ -1,4 +1,4 @@
-defmodule Iso8583Encdec do
+defmodule Iso8583Encdec1 do
   @moduledoc """
   Documentation for `Iso8583Encdec`.
   """
